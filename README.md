@@ -3,6 +3,8 @@
 
 <!-- TODO: create human labeling environment for vimgolf-gym and cybergod-gym as web application -->
 
+<!-- TODO: create a dedicated cybergod_vimgolf_gym docker image, separate from cybergod_worker_terminal and so on -->
+
 # vimgolf-gym
 
 OpenAI gym like environment and benchmark for Vimgolf.
@@ -19,8 +21,13 @@ pip install vimgolf-gym
 import vimgolf_gym
 
 env = vimgolf_gym.make("vimgolf-v0")
+env.act("")
+img = env.screenshot() # output a PIL image
+env.render() # preview screenshot
 env.reset()
-env.render()
+
+if env.solved:
+   env.last_solution
 ```
 
 ## Contributing

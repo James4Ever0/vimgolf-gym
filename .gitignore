@@ -206,3 +206,7 @@ gymnasium_usage_example.py
 test_input.txt
 test_output.txt
 test_vimgolf_local_challenge.sh
+vimgolf_commandline_help.txt
+vimgolf_local_challenge_output.txt
+*.cast
+*.gif
