@@ -210,3 +210,9 @@ vimgolf_commandline_help.txt
 vimgolf_local_challenge_output.txt
 *.cast
 *.gif
+
+test_vimgolf_log_parser.py
+test_vimgolf_env.py
+
+test_log.txt
+test_log_backup.txt

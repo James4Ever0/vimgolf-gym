@@ -82,7 +82,7 @@ class VimGolfChallengeDefinition(BaseModel):
     client_version: str = Field(..., alias="client")
 
     class Config:
-        allow_population_by_field_name = True
+        validate_by_name = True
 
 
 def parse_json_file(file_path: Path, model: type[BaseModel]) -> BaseModel:
