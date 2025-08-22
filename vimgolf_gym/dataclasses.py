@@ -1,18 +1,20 @@
-from pydantic import BaseModel, Field
-from pathlib import Path
 import json
+from datetime import datetime
+from pathlib import Path
 
 from parse import parse
-from datetime import datetime
+from pydantic import BaseModel, Field
+
 
 class VimGolfEnvResult(BaseModel):
     """Represents a single result of VimGolf challenge environment,
-    
+
     Attributes:
         correct: The challenge is solved or not
         keys: VimGolf solution keys (converted from raw representation)
         score: Keystrokes count (the lower the better)
     """
+
     correct: bool
     keys: str
     score: int
@@ -127,9 +129,9 @@ def parse_public_solution_header(input_str: str) -> VimGolfParsedPublicSolutionH
 
     ret = VimGolfParsedPublicSolutionHeader(
         rank=parsed_data["rank"],
+        score=parsed_data["score"],
         user_name=parsed_data["user_name"],
         user_id=parsed_data["user_id"],
-        score=parsed_data["score"],
-        timestamp=timestamp,
+        date=timestamp,
     )
     return ret

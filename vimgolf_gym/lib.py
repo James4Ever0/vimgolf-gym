@@ -3,20 +3,22 @@
 
 # TODO: implement a gradual scoring system by comparing the buffer with the target output, extracting the vim edit buffer in the middle of execution
 
-import vimgolf_gym.terminal_executor as terminal_executor
-import vimgolf_gym.log_parser as log_parser
-import os
-import vimgolf_gym.dataclasses as dataclasses
-import tempfile
-import PIL.Image
 import atexit
-import sys
-import vimgolf.vimgolf as vimgolf
-import urllib.request
+import os
 import pathlib
-import zipfile
 import shutil
+import sys
+import tempfile
 import time
+import zipfile
+
+import PIL.Image
+import requests
+
+import vimgolf.vimgolf as vimgolf
+import vimgolf_gym.dataclasses as dataclasses
+import vimgolf_gym.log_parser as log_parser
+import vimgolf_gym.terminal_executor as terminal_executor
 
 HOMEDIR = os.path.expanduser("~")
 
@@ -77,9 +79,12 @@ def make_offline(input_file: str, output_file: str):
 
 def make_online(challenge_id: str):
     challenge_url = vimgolf.get_challenge_url(challenge_id)
-    challenge_data = urllib.request.urlopen(challenge_url).read()
+    challenge_data = requests.get(challenge_url).content
     challenge = dataclasses.VimGolfChallengeDefinition.parse_raw(challenge_data)
-    return make_env_with_text(input_text=challenge.input, output_text=challenge.output)
+    return make_env_with_challenge(challenge)
+
+def make_env_with_challenge(challenge:dataclasses.VimGolfChallengeDefinition):
+    return make_env_with_text(input_text=challenge.input.data, output_text=challenge.output.data)
 
 
 def init_cybergod_vimgolf_dataset():
@@ -100,7 +105,7 @@ def list_local_challenge_ids():
 def make_offline_with_cybergod_dataset(challenge_id: str):
     init_cybergod_vimgolf_dataset()
     challenge = get_local_challenge_definition(challenge_id)
-    return make_env_with_text(input_text=challenge.input, output_text=challenge.output)
+    return make_env_with_challenge(challenge)
 
 
 def get_local_challenge_metadata(challenge_id: str):
@@ -151,13 +156,15 @@ def get_local_challenge_definition(challenge_id: str):
 
 def download_cybergod_vimgolf_dataset():
     try:
-        zip_download_urls = "https://www.kaggle.com/api/v1/datasets/download/jessysisca/vimgolf-challenges-and-solutions"
+        zip_download_url = "https://www.kaggle.com/api/v1/datasets/download/jessysisca/vimgolf-challenges-and-solutions"
 
         with tempfile.TemporaryDirectory() as tempdir:
             zip_file_path = os.path.join(
                 tempdir, "vimgolf-challenges-and-solutions.zip"
             )
-            urllib.request.urlretrieve(zip_download_urls, zip_file_path)
+            print("Downloading:", zip_download_url)
+            with open(zip_file_path, "wb") as f:
+                f.write(requests.get(zip_download_url, allow_redirects=True).content)
             with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
                 # extract to CYBERGOD_VIMGOLF_GYM_DATASET_DIR
                 zip_ref.extractall(CYBERGOD_VIMGOLF_DATASET_BASEDIR)

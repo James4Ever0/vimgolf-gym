@@ -4,4 +4,5 @@ ptyprocess==0.7.0
 pillow
 pydantic
 parse==1.20.2
+requests==2.31.0
 # gym==0.26.2 # optionally use gymnasium==1.2.0 (actively maintained at: https://github.com/Farama-Foundation/Gymnasium)

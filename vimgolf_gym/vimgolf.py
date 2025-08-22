@@ -1,29 +1,14 @@
-from vimgolf.vimgolf import (
-    logger,
-    tempfile,
-    working_directory,
-    tokenize_keycode_reprs,
-    write,
-    os,
-    Status,
-    filecmp,
-    VimRunner,
-    parse_keycodes,
-    IGNORED_KEYSTROKES,
-    get_keycode_repr,
-    Result,
-    input_loop,
-    sys,
-    upload_result,
-    get_challenge_url,
-    format_,
-    Challenge,
-)
-import vimgolf.vimgolf
-
-import logging
 import argparse
 import json
+import logging
+
+import vimgolf.vimgolf
+from vimgolf.vimgolf import (IGNORED_KEYSTROKES, Challenge, Result, Status,
+                             VimRunner, filecmp, format_, get_challenge_url,
+                             get_keycode_repr, input_loop, logger, os,
+                             parse_keycodes, sys, tempfile,
+                             tokenize_keycode_reprs, upload_result,
+                             working_directory, write)
 
 VIMGOLF_VIMRC = os.path.join(os.path.dirname(vimgolf.vimgolf.__file__), "vimgolf.vimrc")
 

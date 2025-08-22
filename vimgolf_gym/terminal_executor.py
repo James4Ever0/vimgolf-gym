@@ -2,11 +2,13 @@
 
 # remove pyte dependency
 
-import ptyprocess
-import time
 import threading
+import time
+
 import agg_python_bindings
+import ptyprocess
 import pydantic
+
 
 class Cursor(pydantic.BaseModel):
     x: int

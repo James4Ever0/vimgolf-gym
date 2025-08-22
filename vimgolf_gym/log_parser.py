@@ -1,8 +1,9 @@
-import json
 import copy
+import json
 import os
 from abc import ABC, abstractmethod
 from typing import Type
+
 from vimgolf_gym.dataclasses import VimGolfEnvResult
 
 # we keep track of the log file attributes
