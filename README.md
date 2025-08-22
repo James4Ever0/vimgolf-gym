@@ -17,6 +17,11 @@ pip install vimgolf-gym
 
 ## Demo
 
+![vimgolf-test-success](https://github.com/user-attachments/assets/011c21d7-5b4b-4836-ac14-e4b8126c3ab4)
+
+![vimgolf-local-4d1a1c36567bac34a9000002-fail](https://github.com/user-attachments/assets/c6f4c2ba-1506-42c1-8d47-28816d338e94)
+
+
 ## Usage
 
 ```python
