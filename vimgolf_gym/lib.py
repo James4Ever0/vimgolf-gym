@@ -16,6 +16,7 @@ import urllib.request
 import pathlib
 import zipfile
 import shutil
+import time
 
 HOMEDIR = os.path.expanduser("~")
 
@@ -30,9 +31,22 @@ CYBERGOD_VIMGOLF_GYM_DATASET_DOWNLOADED = os.path.join(
 os.makedirs(CYBERGOD_VIMGOLF_DATASET_BASEDIR, exist_ok=True)
 
 
+def assert_challenge_id_length(challenge_id: str):
+    """Assert the challenge_id length to be 24"""
+    assert len(challenge_id) == 24
+
+
 def make(env_name: str):
     if env_name == "vimgolf-test":
         env = make_test()
+    elif env_name.startswith("vimgolf-local-"):
+        challenge_id = env_name[len("vimgolf-local-") :]
+        assert_challenge_id_length(challenge_id)
+        env = make_offline_with_cybergod_dataset(challenge_id)
+    elif env_name.startswith("vimgolf-online-"):
+        challenge_id = env_name[len("vimgolf-online-") :]
+        assert_challenge_id_length(challenge_id)
+        env = make_online(challenge_id)
     else:
         raise NotImplementedError
     return env
@@ -68,16 +82,71 @@ def make_online(challenge_id: str):
     return make_env_with_text(input_text=challenge.input, output_text=challenge.output)
 
 
-def make_offline_with_cybergod_dataset(challenge_id: str):
+def init_cybergod_vimgolf_dataset():
     if not os.path.exists(CYBERGOD_VIMGOLF_GYM_DATASET_DOWNLOADED):
         download_cybergod_vimgolf_dataset()
-    challenge_file = os.path.join(
-        CYBERGOD_VIMGOLF_DATASET_BASEDIR, challenge_id, "challenge.json"
+
+
+def list_local_challenge_ids():
+    init_cybergod_vimgolf_dataset()
+    challenges_dir = os.path.join(
+        CYBERGOD_VIMGOLF_DATASET_BASEDIR,
+        "challenges",
     )
-    assert os.path.exists(challenge_file)
+    challenge_ids = os.listdir(challenges_dir)
+    return challenge_ids
+
+
+def make_offline_with_cybergod_dataset(challenge_id: str):
+    init_cybergod_vimgolf_dataset()
+    challenge = get_local_challenge_definition(challenge_id)
+    return make_env_with_text(input_text=challenge.input, output_text=challenge.output)
+
+
+def get_local_challenge_metadata(challenge_id: str):
+    metadata_file = os.path.join(
+        CYBERGOD_VIMGOLF_DATASET_BASEDIR, "challenges", challenge_id, "metadata.json"
+    )
+    assert os.path.exists(metadata_file), (
+        "Metadata file '%s' does not exist" % metadata_file
+    )
+    with open(metadata_file, "r") as f:
+        metadata = dataclasses.VimGolfChallengeMetadata.parse_raw(f.read())
+    return metadata
+
+
+def get_local_challenge_worst_solution(challenge_id: str):
+    metadata_file = os.path.join(
+        CYBERGOD_VIMGOLF_DATASET_BASEDIR,
+        "challenges",
+        challenge_id,
+        "worst_solution.json",
+    )
+    assert os.path.exists(metadata_file), (
+        "Worst solution file '%s' does not exist" % metadata_file
+    )
+    with open(metadata_file, "r") as f:
+        Worst_solution = dataclasses.VimGolfPublicSolution.parse_raw(f.read())
+    return Worst_solution
+
+
+def get_local_challenge_worst_solution_header(challenge_id: str):
+    solution = get_local_challenge_worst_solution(challenge_id)
+    header = solution.header
+    ret = dataclasses.parse_public_solution_header(header)
+    return ret
+
+
+def get_local_challenge_definition(challenge_id: str):
+    challenge_file = os.path.join(
+        CYBERGOD_VIMGOLF_DATASET_BASEDIR, "challenges", challenge_id, "challenge.json"
+    )
+    assert os.path.exists(challenge_file), (
+        "Challenge file '%s' does not exist" % challenge_file
+    )
     with open(challenge_file, "r") as f:
         challenge = dataclasses.VimGolfChallengeDefinition.parse_raw(f.read())
-    return make_env_with_text(input_text=challenge.input, output_text=challenge.output)
+    return challenge
 
 
 def download_cybergod_vimgolf_dataset():
@@ -116,7 +185,7 @@ class VimGolfEnv:
         # TODO: run a modified version of vimgolf local python script writing progress to a jsonl file, which embeds in this script, for easy state inspection and data collection (we can create a temporary directory for cleanup)
         self.log_directory = tempfile.TemporaryDirectory()
 
-        self.log_file = os.path.join(self.log_directory, "vimgolf.log")
+        self.log_file = os.path.join(self.log_directory.name, "vimgolf.log")
 
         self.command = [
             sys.executable,
@@ -143,23 +212,26 @@ class VimGolfEnv:
         """
         self.executor.input(action)
 
+    @property
     def success(self):
         """Check if the vimgolf challenge has been solved successfully"""
-        return self.log_watcher.parser.success
+        return self.log_watcher.success
 
     def get_best_success_result(self):
-        return self.log_watcher.parser.get_best_success_result()
+        return self.log_watcher.get_best_success_result()
 
     def get_last_success_result(self):
-        return self.log_watcher.parser.get_last_success_result()
+        return self.log_watcher.get_last_success_result()
 
-    def dump_results(self):
-        """Dump the results of the vimgolf challenge"""
-        return self.log_watcher.parser.results
+    @property
+    def results(self):
+        """The results of the vimgolf challenge environment"""
+        return self.log_watcher.results
 
-    def dump_success_results(self):
-        """Dump the success results of the vimgolf challenge"""
-        return self.log_watcher.parser.success_results
+    @property
+    def success_results(self):
+        """The success results of the vimgolf challenge environment"""
+        return self.log_watcher.success_results
 
     def create_executor_and_log_watcher(self):
         """Create the executor and log watcher"""
@@ -167,6 +239,15 @@ class VimGolfEnv:
             command=self.command, width=self.width, height=self.height
         )
         self.log_watcher = log_parser.VimGolfLogWatcher(self.log_file)
+        # shall we wait the executor be ready
+        # we wait for the 'play(...)' indicator to appear in the log file.
+        while True:
+            if os.path.exists(self.log_file):
+                with open(self.log_file, "r") as f:
+                    log_content = f.read()
+                    if "play(...)" in log_content:
+                        break
+            time.sleep(0.5)
 
     def reset(self):
         """Reset the environment"""

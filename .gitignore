@@ -216,3 +216,5 @@ test_vimgolf_env.py
 
 test_log.txt
 test_log_backup.txt
+
+*.png

@@ -5,6 +5,18 @@ import json
 from parse import parse
 from datetime import datetime
 
+class VimGolfEnvResult(BaseModel):
+    """Represents a single result of VimGolf challenge environment,
+    
+    Attributes:
+        correct: The challenge is solved or not
+        keys: VimGolf solution keys (converted from raw representation)
+        score: Keystrokes count (the lower the better)
+    """
+    correct: bool
+    keys: str
+    score: int
+
 
 class VimGolfParsedPublicSolutionHeader(BaseModel):
     """Represents the header of a VimGolf public solution entry.

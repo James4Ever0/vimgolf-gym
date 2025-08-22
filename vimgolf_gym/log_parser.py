@@ -3,6 +3,7 @@ import copy
 import os
 from abc import ABC, abstractmethod
 from typing import Type
+from vimgolf_gym.dataclasses import VimGolfEnvResult
 
 # we keep track of the log file attributes
 # specifically, the file size.
@@ -78,21 +79,47 @@ class LogWatcher:
                         break
                     self.parser.feed_line(line)
 
-            # Update tracking variables
-            self.last_filesize = current_size
-            self.last_position = f.tell()
+                # Update tracking variables
+                self.last_filesize = current_size
+                self.last_position = f.tell()
 
 
 class VimGolfLogWatcher(LogWatcher):
-    def __init__(self, log_file: str):
+    def __init__(self, log_file: str, update_style="advanced"):
         super().__init__(log_file=log_file, parser_class=VimGolfLogParser)
         self.parser: VimGolfLogParser
+        self.update_style = update_style
 
+    def default_update(self):
+        self.update(style=self.update_style)
+
+    @property
+    def success(self):
+        self.default_update()
+        return self.parser.success
+
+    def get_best_success_result(self):
+        self.default_update()
+        return self.parser.get_best_success_result()
+
+    def get_last_success_result(self):
+        self.default_update()
+        return self.parser.get_last_success_result()
+
+    @property
+    def results(self):
+        self.default_update()
+        return self.parser.results
+
+    @property
+    def success_results(self):
+        self.default_update()
+        return self.parser.success_results
 
 
 class VimGolfLogParser(AbstractLogParser):
     def __init__(self):
-        self.results = []
+        self.results: list[VimGolfEnvResult] = []
 
     def feed_line(self, line: str):
         try:
@@ -101,13 +128,14 @@ class VimGolfLogParser(AbstractLogParser):
                 if data.get("event_type", None) == "vimgolf_result":
                     event_data = data.get("event_data", None)
                     if type(event_data) == dict:
-                        self.results.append(event_data)
+                        parsed_result = VimGolfEnvResult.parse_obj(event_data)
+                        self.results.append(parsed_result)
         except json.JSONDecodeError:
             ...
 
     @property
     def success_results(self):
-        return [it for it in self.results if it["correct"]]
+        return [it for it in self.results if it.correct]
 
     @property
     def success(self):
@@ -122,6 +150,5 @@ class VimGolfLogParser(AbstractLogParser):
         """Return the result with the lowest score"""
         success_results = copy.deepcopy(self.success_results)
         if success_results:
-            success_results.sort(key=lambda x: x["score"])
+            success_results.sort(key=lambda x: x.score)
             return success_results[0]
-
