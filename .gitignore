@@ -202,3 +202,7 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
+gymnasium_usage_example.py
+test_input.txt
+test_output.txt
+test_vimgolf_local_challenge.sh
