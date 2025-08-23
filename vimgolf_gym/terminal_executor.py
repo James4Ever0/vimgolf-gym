@@ -1,7 +1,7 @@
 """
 Terminal executor
 
-Code source: [terminal_asciicast_record_executor.py](https://github.com/James4Ever0/agi_computer_control/blob/master/web_gui_terminal_recorder/executor_and_replayer/terminal_asciicast_record_executor.py] (modified)
+Code source: [terminal_asciicast_record_executor.py](https://github.com/James4Ever0/agi_computer_control/blob/master/web_gui_terminal_recorder/executor_and_replayer/terminal_asciicast_record_executor.py) (modified)
 """
 
 # pending pypi project name: termexec
