@@ -160,7 +160,7 @@ def test_local():
     try:
          import rich
          rich.print(env.results)
-   except ImportError:
+    except ImportError:
          print(env.results)
     env.close()
     write_images_to_gif(
