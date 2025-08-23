@@ -1,3 +1,7 @@
+"""
+Vimgolf API wrapper
+"""
+
 import argparse
 import json
 import logging
@@ -14,6 +18,21 @@ VIMGOLF_VIMRC = os.path.join(os.path.dirname(vimgolf.vimgolf.__file__), "vimgolf
 
 
 def parse_commandline_arguments():
+    """
+    Parse the command line arguments using argparse.
+
+    Args:
+        None
+
+    Returns:
+        A Namespace object with the parsed arguments.
+
+    The parsed arguments are:
+        --input_file: str, the path to the input file
+        --output_file: str, the path to the output file
+        --log_file: str, the path to the log file
+    """
+    
     parser = argparse.ArgumentParser()
     parser.add_argument("--input_file", type=str, required=True)
     parser.add_argument("--output_file", type=str, required=True)
@@ -23,6 +42,17 @@ def parse_commandline_arguments():
 
 
 def main():
+    """
+    Parse command line arguments and execute the vimgolf local challenge.
+
+    It sets up the logging to a file and then calls the local function to execute
+    the challenge.
+
+    The local function is called with the input file, output file and an empty
+    string as the init_keys argument.
+
+    :return: None
+    """
     args = parse_commandline_arguments()
     log_file = args.log_file
     file_handler = logging.FileHandler(log_file)
@@ -32,6 +62,20 @@ def main():
 
 
 def local(infile, outfile, init_keys=""):
+    """
+    Execute a local VimGolf challenge.
+
+    It reads the input file, output file, and runs the challenge. The challenge
+    is defined by the input and output text and the file extensions.
+
+    Args:
+        infile: str, the path to the input file
+        outfile: str, the path to the output file
+        init_keys: str, the initial keys to type into Vim
+
+    Returns:
+        Status: The status of the challenge
+    """
     logger.info("local(%s, %s)", infile, outfile)
     with open(infile, "r") as f:
         in_text = format_(f.read())
@@ -54,6 +98,16 @@ def local(infile, outfile, init_keys=""):
 
 
 def play(challenge, results=None):
+    """
+    Execute a VimGolf challenge.
+
+    Args:
+        challenge: Challenge, the challenge to play
+        results: list of Result, the results of previous plays
+
+    Returns:
+        Status: The status of the challenge
+    """
     if results is None:
         results = []
     logger.info("play(...)")

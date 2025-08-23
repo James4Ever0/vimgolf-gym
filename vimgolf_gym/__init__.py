@@ -1,3 +1,8 @@
+"""
+
+VimGolfGym: A gym environment for VimGolf challenges.
+"""
+
 from vimgolf_gym.lib import (get_local_challenge_definition,
                              get_local_challenge_metadata,
                              get_local_challenge_worst_solution,

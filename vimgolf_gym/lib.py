@@ -1,3 +1,7 @@
+"""
+Library of vimgolf-gym
+"""
+
 # TODO: implement a openai-gym style interface
 # reference link: https://github.com/Farama-Foundation/Gymnasium
 
@@ -45,6 +49,24 @@ def assert_challenge_id_length(challenge_id: str):
 
 
 def make(env_name: str, use_docker: bool = False):
+    """
+    Create a VimGolf environment.
+
+    The env_name can be one of the following:
+    - `vimgolf-test`: A simple test environment.
+    - `vimgolf-local-<challenge_id>`: A local environment for a specific challenge.
+    - `vimgolf-online-<challenge_id>`: An online environment for a specific challenge.
+
+    Args:
+        env_name (str): The name of the environment to create.
+        use_docker (bool, optional): Whether to use a dockerized executor. Defaults to False.
+
+    Raises:
+        NotImplementedError: If the environment name is not recognized.
+
+    Returns:
+        VimGolfEnv: The created environment
+    """
     if use_docker:
         os.environ["VIMGOLF_GYM_USE_DOCKER"] = "1"
     else:
@@ -65,12 +87,31 @@ def make(env_name: str, use_docker: bool = False):
 
 
 def make_test():
+    """
+    Create an environment for a simple test challenge.
+
+    The test challenge is about typing "hello world" into the buffer and then saving and quitting vim.
+    The expected solution is "hello world\nhello world\n".
+    """
     input_text = ""
     output_text = "hello world\nhello world\n"
     return make_env_with_text(input_text, output_text)
 
 
 def make_env_with_text(input_text: str, output_text: str):
+    """
+    Create a VimGolfEnv with given input and output text.
+
+    Creates a temporary directory and two files, one for the input and one for the output.
+    Then it calls make_offline with the paths of the two files.
+
+    Args:
+        input_text (str): The starting code.
+        output_text (str): The expected solution code.
+
+    Returns:
+        VimGolfEnv: The environment object.
+    """
     tempdir = tempfile.TemporaryDirectory()
     atexit.register(tempdir.cleanup)
     input_file = os.path.join(tempdir.name, "input.txt")
@@ -83,11 +124,33 @@ def make_env_with_text(input_text: str, output_text: str):
 
 
 def make_offline(input_file: str, output_file: str):
+    """
+    Create an environment from a VimGolf challenge given as a local file.
+
+    Args:
+        input_file (str): Path to the file containing the starting code.
+        output_file (str): Path to the file containing the expected solution code.
+
+    Returns:
+        VimGolfEnv: An environment for the given challenge.
+    """
     use_docker = os.environ.get("VIMGOLF_GYM_USE_DOCKER", None) == "1"
     return VimGolfEnv(input_file, output_file, use_docker=use_docker)
 
 
 def make_online(challenge_id: str):
+    """
+    Create an environment from a VimGolf challenge online.
+
+    Given a challenge_id, obtain the challenge definition from the VimGolf website
+    and create an environment out of it.
+
+    Args:
+        challenge_id (str): Unique identifier for the challenge.
+
+    Returns:
+        VimGolfEnv: An environment for the given challenge.
+    """
     challenge_url = vimgolf.get_challenge_url(challenge_id)
     challenge_data = requests.get(challenge_url).content
     challenge = dataclasses.VimGolfChallengeDefinition.parse_raw(challenge_data)
@@ -95,17 +158,46 @@ def make_online(challenge_id: str):
 
 
 def make_env_with_challenge(challenge: dataclasses.VimGolfChallengeDefinition):
+    """
+    Create an environment from a VimGolfChallengeDefinition object.
+
+    This function simply passes the input and output text to make_env_with_text,
+    which will create a VimGolfEnv with the given text.
+
+    Args:
+        challenge: VimGolfChallengeDefinition object
+
+    Returns:
+        VimGolfEnv: An environment for the given challenge
+    """
     return make_env_with_text(
         input_text=challenge.input.data, output_text=challenge.output.data
     )
 
 
 def init_cybergod_vimgolf_dataset():
+    """
+    Initialize the local dataset by downloading it if it does not exist yet.
+
+    After this function is called, the local dataset should be downloaded and
+    ready to use.
+
+    This function is called by `list_local_challenge_ids` and `make_offline_with_cybergod_dataset`.
+    """
     if not os.path.exists(CYBERGOD_VIMGOLF_GYM_DATASET_DOWNLOADED):
         download_cybergod_vimgolf_dataset()
 
 
 def list_local_challenge_ids():
+    """
+    List all challenge ids in the local dataset.
+
+    This function will download the local dataset if it does not exist yet.
+
+    Returns:
+        list[str]: a list of all challenge ids in the local dataset.
+    """
+    
     init_cybergod_vimgolf_dataset()
     challenges_dir = os.path.join(
         CYBERGOD_VIMGOLF_DATASET_BASEDIR,
@@ -116,12 +208,41 @@ def list_local_challenge_ids():
 
 
 def make_offline_with_cybergod_dataset(challenge_id: str):
+    """
+    Load a VimGolf challenge from the local dataset and make an environment
+    out of it.
+
+    Given a challenge_id, find the corresponding challenge definition in the
+    dataset, parse it into a VimGolfChallengeDefinition object, and create a
+    VimGolfEnv out of it.
+
+    Args:
+        challenge_id (str): Unique identifier for the challenge.
+
+    Returns:
+        VimGolfEnv: An environment for the given challenge.
+    """
     init_cybergod_vimgolf_dataset()
     challenge = get_local_challenge_definition(challenge_id)
     return make_env_with_challenge(challenge)
 
 
 def get_local_challenge_metadata(challenge_id: str):
+    """
+    Load a VimGolf challenge's metadata from the local dataset.
+
+    Given a challenge_id, find the corresponding JSON file in the dataset
+    and parse it into a VimGolfChallengeMetadata object.
+
+    Args:
+        challenge_id (str): Unique identifier for the challenge.
+
+    Returns:
+        VimGolfChallengeMetadata: Parsed challenge metadata.
+
+    Raises:
+        AssertionError: If the metadata file does not exist.
+    """
     metadata_file = os.path.join(
         CYBERGOD_VIMGOLF_DATASET_BASEDIR, "challenges", challenge_id, "metadata.json"
     )
@@ -134,6 +255,21 @@ def get_local_challenge_metadata(challenge_id: str):
 
 
 def get_local_challenge_worst_solution(challenge_id: str):
+    """
+    Load the worst solution for a challenge from the local dataset.
+
+    Given a challenge_id, find the corresponding JSON file in the dataset
+    and parse it into a VimGolfPublicSolution object.
+
+    Args:
+        challenge_id (str): Unique identifier for the challenge.
+
+    Returns:
+        VimGolfPublicSolution: Parsed worst solution.
+
+    Raises:
+        AssertionError: If the worst solution file does not exist.
+    """
     metadata_file = os.path.join(
         CYBERGOD_VIMGOLF_DATASET_BASEDIR,
         "challenges",
@@ -149,6 +285,21 @@ def get_local_challenge_worst_solution(challenge_id: str):
 
 
 def get_local_challenge_worst_solution_header(challenge_id: str):
+    """
+    Parse the worst solution's header string from the local dataset.
+
+    Given a challenge_id, find the corresponding worst solution file in the dataset
+    and parse its header string into a VimGolfParsedPublicSolutionHeader object.
+
+    Args:
+        challenge_id (str): Unique identifier for the challenge.
+
+    Returns:
+        VimGolfParsedPublicSolutionHeader: Parsed header string.
+
+    Raises:
+        AssertionError: If the worst solution file does not exist.
+    """
     solution = get_local_challenge_worst_solution(challenge_id)
     header = solution.header
     ret = dataclasses.parse_public_solution_header(header)
@@ -156,6 +307,21 @@ def get_local_challenge_worst_solution_header(challenge_id: str):
 
 
 def get_local_challenge_definition(challenge_id: str):
+    """
+    Load a VimGolf challenge definition from the local dataset.
+
+    Given a challenge_id, find the corresponding JSON file in the dataset
+    and parse it into a VimGolfChallengeDefinition object.
+
+    Args:
+        challenge_id (str): Unique identifier for the challenge.
+
+    Returns:
+        VimGolfChallengeDefinition: Parsed challenge definition.
+
+    Raises:
+        AssertionError: If the challenge file does not exist.
+    """
     challenge_file = os.path.join(
         CYBERGOD_VIMGOLF_DATASET_BASEDIR, "challenges", challenge_id, "challenge.json"
     )
@@ -168,6 +334,18 @@ def get_local_challenge_definition(challenge_id: str):
 
 
 def download_cybergod_vimgolf_dataset():
+    """
+    Download the CyberGod VimGolf dataset from various sources.
+
+    This function is called when the dataset is not initialized yet. It downloads the dataset
+    from various sources (Kaggle, Hugging Face, GitHub Releases, GitHub Mirror) and extracts it
+    to the dataset directory. After the download is finished, it touches the flag file
+    CYBERGOD_VIMGOLF_GYM_DATASET_DOWNLOADED to indicate that the dataset is initialized.
+
+    If the download fails, it raises an exception and cleans up the dataset directory.
+
+    :raises DatasetInitError: If the dataset download fails.
+    """
     print("Initializing CyberGod VimGolf dataset at:", CYBERGOD_VIMGOLF_DATASET_BASEDIR)
     try:
         # TODO: add huggingface, hf-mirror.com, github releases and github mirror links
@@ -293,9 +471,21 @@ class VimGolfEnv:
         return self.log_watcher.success
 
     def get_best_success_result(self):
+        """
+        Return the best success result in the log watcher.
+
+        :return: the best success result
+        :rtype: VimGolfEnvResult | None
+        """
         return self.log_watcher.get_best_success_result()
 
     def get_last_success_result(self):
+        """
+        Return the last success result in the log watcher.
+
+        :return: the last success result
+        :rtype: VimGolfEnvResult | None
+        """
         return self.log_watcher.get_last_success_result()
 
     @property

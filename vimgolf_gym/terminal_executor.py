@@ -1,6 +1,10 @@
-# code from: https://github.com/James4Ever0/agi_computer_control/blob/master/web_gui_terminal_recorder/executor_and_replayer/terminal_asciicast_record_executor.py (modified)
+"""
+Terminal executor
 
-# remove pyte dependency
+Code from: https://github.com/James4Ever0/agi_computer_control/blob/master/web_gui_terminal_recorder/executor_and_replayer/terminal_asciicast_record_executor.py (modified)
+"""
+
+# pending pypi project name: termexec
 
 import threading
 import time
@@ -29,27 +33,79 @@ def decode_bytes_to_utf8_safe(_bytes: bytes):
 
 class AvtScreen:
     def __init__(self, width: int, height: int):
+        """
+        Initialize an AvtScreen object.
+
+        Parameters
+        ----------
+        width : int
+            The width of the virtual terminal emulator.
+        height : int
+            The height of the virtual terminal emulator.
+        """
         self.vt = agg_python_bindings.TerminalEmulator(width, height)
 
     def write_bytes(self, _bytes: bytes):
+        """
+        Write the given bytes to the virtual terminal emulator.
+
+        The bytes are decoded with UTF-8 and any decoding errors are replaced with a
+        replacement character (�).
+
+        Args
+        ----
+        _bytes: bytes
+            The bytes to be written to the virtual terminal emulator.
+        """
         decoded_bytes = decode_bytes_to_utf8_safe(_bytes)
         self.vt.feed_str(decoded_bytes)
 
     @property
     def cursor(self):
+        """
+        Get the current position of the cursor as a `Cursor` object.
+
+        Returns
+        -------
+        Cursor
+            A `Cursor` object with `x` and `y` properties for the current column and row
+            of the cursor, respectively, and a `hidden` property which is `True` if the
+            cursor is hidden and `False` otherwise.
+        """
         col, row, visible = self.vt.get_cursor()
         ret = Cursor(x=col, y=row, hidden=not visible)
         return ret
 
     @property
     def display(self):
+        """
+        Get the current display of the terminal emulator as a string.
+
+        Returns
+        -------
+        str
+            A string representation of the current display of the terminal emulator.
+        """
         ret = "\n".join(self.vt.text_raw())
         return ret
 
     def screenshot(self, png_output_path: str):
+        """
+        Saves the current state of the terminal emulator to a PNG image file.
+
+        The image has the same width and height as the terminal emulator.
+
+        Args:
+            png_output_path: The path to write the PNG image to.
+        """
         self.vt.screenshot(png_output_path)
     
     def close(self):
+        """
+        Releases all resources used by the terminal emulator.
+
+        This is necessary to avoid crashes when creating multiple instances of this class.
+        """
         del self.vt
 
 
@@ -133,16 +189,34 @@ class TerminalExecutor:
 
     @property
     def display(self) -> str:
+        """
+        Get the current display of the terminal emulator as a string.
+        """
+        
         return self.terminal.vt_screen.display
 
     def screenshot(self, png_save_path: str):
+        """
+        Saves the current display of the terminal emulator as a .png file
+
+        Args:
+            png_save_path: The path to save the screenshot to
+        """
         self.terminal.vt_screen.screenshot(png_save_path)
     
     def close(self):
+        """
+        Closes the terminal emulator process and the associated reading thread.
+        """
         self.terminal.close()
 
 
 def test_harmless_command_locally_with_bash():
+    """
+    Tests the TerminalExecutor class with a harmless command by running a docker alpine container
+    and executing a series of input events, then taking a screenshot and dumping the terminal
+    display to a file.
+    """
     SLEEP_INTERVAL = 0.5
     command = ["docker", "run" , "--rm", "-it", "alpine"]
     input_events = ['echo "Hello World!"', "\n"]
@@ -161,6 +235,14 @@ def test_harmless_command_locally_with_bash():
     print("Done")
 
 def test():
+    """
+    Runs a test for the TerminalExecutor class by running a harmless command
+    locally with bash and taking a screenshot and dumping the terminal display
+    to a file.
+
+    This test is useful for checking that the TerminalExecutor class works in
+    a real environment.
+    """
     test_harmless_command_locally_with_bash()
 
 if __name__ == "__main__":

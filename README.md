@@ -11,28 +11,155 @@ OpenAI gym like environment and benchmark for Vimgolf.
 
 ## Demo
 
+### A simple script for solving the "vimgolf-test" challenge
+
 ![vimgolf-test-success](https://github.com/user-attachments/assets/011c21d7-5b4b-4836-ac14-e4b8126c3ab4)
+
+Console output:
+
+```
+Success: True
+Results:
+[VimGolfEnvResult(correct=True, keys='ihello world<NL>hello world<Esc>:wq<NL>', score=29)]
+```
 
 <details>
 
 <summary>Code:</summary>
 
 ```python
+import vimgolf_gym
+import time
+import PIL.Image
+
+def test_demo():
+    """
+    Run a demo of vimgolf-gym, interacting with the environment by
+    typing "hello world" into the buffer and then saving and quitting vim.
+    Takes screenshots of the process and saves them to a .gif file.
+    """
+    env = vimgolf_gym.make("vimgolf-test")
+    images: list[PIL.Image.Image] = []
+    images.append(env.screenshot())
+    env.act("i")
+    images.append(env.screenshot())
+    env.act("hello world\n")
+    images.append(env.screenshot())
+    env.act("hello world")
+    images.append(env.screenshot())
+    env.act("\x1b:wq")
+    images.append(env.screenshot())
+    env.act("\n")
+    images.append(env.screenshot())
+    time.sleep(1)
+    images.append(env.screenshot())
+    print("Success:", env.success)
+    print("Results:")
+    try:
+         import rich
+         rich.print(env.results)
+    except ImportError:
+         print(env.results)
+    env.close()
+    write_images_to_gif(images=images, output_gif_path="vimgolf-test-success.gif")
+
+
+def write_images_to_gif(
+    images: list[PIL.Image.Image], output_gif_path: str, interval=1000
+):
+    durations = [interval] * len(images)
+
+    images[0].save(
+        output_gif_path,
+        save_all=True,
+        append_images=images[1:],
+        duration=durations,
+        loop=1,
+    )
 
 ```
 
 </details>
 
+### A trial on the "vimgolf-local-4d1a1c36567bac34a9000002" challenge
 
 ![vimgolf-local-4d1a1c36567bac34a9000002-fail](https://github.com/user-attachments/assets/c6f4c2ba-1506-42c1-8d47-28816d338e94)
 
+Console output:
+
+```
+Success: False
+Results:
+[VimGolfEnvResult(correct=False, keys=':wq<NL>', score=4)]
+```
 
 <details>
 
 <summary>Code:</summary>
 
 ```python
+import vimgolf_gym
+import time
+import PIL.Image
 
+def write_images_to_gif(
+    images: list[PIL.Image.Image], output_gif_path: str, interval=1000
+):
+    durations = [interval] * len(images)
+
+    images[0].save(
+        output_gif_path,
+        save_all=True,
+        append_images=images[1:],
+        duration=durations,
+        loop=1,
+    )
+
+def test_local():
+    """
+    Test a local challenge with the given challenge id.
+
+    It checks the data of the challenge in the local dataset, and then runs the
+    challenge in the local environment and takes screenshots of the process.
+    """
+    challenge_id = "4d1a1c36567bac34a9000002"
+    assert challenge_id in vimgolf_gym.list_local_challenge_ids()
+    assert (
+        vimgolf_gym.get_local_challenge_definition(challenge_id).client_version
+        == "0.5.0"
+    )
+    assert (
+        vimgolf_gym.get_local_challenge_metadata(challenge_id).challenge_hash
+        == challenge_id
+    )
+    assert vimgolf_gym.get_local_challenge_worst_solution(challenge_id).rank == "74"
+    assert (
+        vimgolf_gym.get_local_challenge_worst_solution_header(challenge_id).score
+        == "206"
+    )
+    env = vimgolf_gym.make("vimgolf-local-%s" % challenge_id)
+    images: list[PIL.Image.Image] = []
+    images.append(env.screenshot())
+    env.act(":wq")
+    images.append(env.screenshot())
+    env.act("\n")
+    images.append(env.screenshot())
+    time.sleep(1)
+    images.append(env.screenshot())
+    print("Success:", env.success)
+    print("Results:")
+    try:
+         import rich
+         rich.print(env.results)
+   except ImportError:
+         print(env.results)
+    env.close()
+    write_images_to_gif(
+        images=images, output_gif_path="vimgolf-local-%s-fail.gif" % challenge_id
+    )
+
+if __name__ == "__main__":
+   test_local()
 ```
 
 </details>
@@ -57,14 +184,26 @@ docker pull agile4im/cybergod_vimgolf_gym
 
 ## Usage
 
+Basic interactions:
+
 ```python
 import vimgolf_gym
+import vimgolf_gym.dataclasses
+
+# a basic "hello world" challenge
+env_name = "vimgolf-test"
+
+# a local challenge, format is "vimgolf-local-<challenge_id>"
+env_name = "vimgolf-local-4d1a1c36567bac34a9000002"
+
+# an online challenge, format is "vimgolf-online-<challenge_id>"
+env_name = "vimgolf-online-4d1a1c36567bac34a9000002"
 
 # if you have vim installed locally
-env = vimgolf_gym.make("vimgolf-test")
+env = vimgolf_gym.make(env_name)
 
 # or run the executor with docker
-env = vimgolf_gym.make("vimgolf-test", use_docker=True)
+env = vimgolf_gym.make(env_name, use_docker=True)
 
 # take an action
 env.act("hello world\n")
@@ -80,5 +219,48 @@ env.reset()
 
 # check if the environment has at least one success result
 if env.success:
-   env.get_last_success_result()
+   # VimGolfEnvResult: (correct:bool, keys:str, score:int)
+   result: vimgolf_gym.dataclasses.VimGolfEnvResult = env.get_last_success_result()
 ```
+
+The local challenges are stored in `~/.cache/cybergod-vimgolf-challenges/`.
+
+If you want to learn more about the local challenges, use the following code:
+
+```python
+import vimgolf_gym
+import vimgolf_gym.dataclasses
+
+challenge_id = "4d1a1c36567bac34a9000002"
+
+# list all local challenge ids
+local_challenge_ids: list[str] = vimgolf_gym.list_local_challenge_ids()
+
+# get the challenge definition
+# VimGolfChallengeDefinition: (input: InputOutputModel, output: InputOutputModel, client_version:str)
+# InputOutputModel: (data:str, type:str)
+challenge: vimgolf_gym.dataclasses.VimGolfChallengeDefinition = get_local_challenge_definition(challenge_id)
+
+# get the challenge metadata
+# VimGolfChallengeMetadata: (href:str, title:str, detail:str, challenge_hash:str)
+metadata: vimgolf_gym.dataclasses.VimGolfChallengeMetadata = vimgolf_gym.get_local_challenge_metadata(challenge_id)
+
+# get the worst solution
+# VimGolfPublicSolution: (rank: str, solution: str, header: str)
+solution: vimgolf_gym.dataclasses. = vimgolf_gym.get_local_challenge_worst_solution(challenge_id)
+
+# get the worst solution header
+# VimGolfParsedPublicSolutionHeader: (rank:str, score:str, user_name:str, user_id:str, data:datetime)
+header: vimgolf_gym.dataclasses.VimGolfParsedPublicSolutionHeader = vimgolf_gym.get_local_challenge_worst_solution_header(challenge_id)
+```
+
+If you want to obtain online challenge ids, you have a few options:
+
+1. Visit the [Vimgolf website](https://vimgolf.com) and look at the challenge ids.
+2. Use `vimgolf` command
+   - Install: `pip3 install vimgolf`
+   - Run: `vimgolf list`
+
+## License
+
+The Unlicense
