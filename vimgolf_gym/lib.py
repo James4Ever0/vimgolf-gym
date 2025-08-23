@@ -19,6 +19,7 @@ import pathlib
 import shutil
 import sys
 import tempfile
+import typing
 import time
 import zipfile
 
@@ -52,7 +53,11 @@ def assert_challenge_id_length(challenge_id: str) -> bool:
     assert len(challenge_id) == 24
 
 
-def make(env_name: str, use_docker: bool = False) -> "VimGolfEnv":
+def make(
+    env_name: str,
+    custom_challenge: typing.Optional[dataclasses.VimGolfCustomChallenge] = None,
+    use_docker: bool = False,
+) -> "VimGolfEnv":
     """
     Create a VimGolf environment.
 
@@ -60,10 +65,12 @@ def make(env_name: str, use_docker: bool = False) -> "VimGolfEnv":
     - `vimgolf-test`: A simple test environment.
     - `vimgolf-local-<challenge_id>`: A local environment for a specific challenge.
     - `vimgolf-online-<challenge_id>`: An online environment for a specific challenge.
+    - `vimgolf-custom`: A custom environment. The `custom_challenge` parameter will be used.
 
     Args:
         env_name (str): The name of the environment to create.
         use_docker (bool, optional): Whether to use a dockerized executor. Defaults to False.
+        custom_challenge (Optional[VimGolfCustomChallenge], optional): The custom challenge to use. Defaults to None.
 
     Raises:
         NotImplementedError: If the environment name is not recognized.
@@ -77,6 +84,11 @@ def make(env_name: str, use_docker: bool = False) -> "VimGolfEnv":
         os.environ["VIMGOLF_GYM_USE_DOCKER"] = "0"
     if env_name == "vimgolf-test":
         env = make_test()
+    elif env_name == "vimgolf-custom":
+        assert custom_challenge, "custom_challenge must be provided for vimgolf-custom environment"
+        env = make_env_with_text(
+            input=custom_challenge.input, output=custom_challenge.output
+        )
     elif env_name.startswith("vimgolf-local-"):
         challenge_id = env_name[len("vimgolf-local-") :]
         assert_challenge_id_length(challenge_id)

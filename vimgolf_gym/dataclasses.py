@@ -8,7 +8,23 @@ from pathlib import Path
 
 from parse import parse
 from pydantic import BaseModel, Field
+from typing import Optional
 
+class VimGolfCustomChallenge(BaseModel):
+    """Represents a custom VimGolf challenge
+
+    Attributes:
+        input: The input of the challenge (required)
+        output: The output of the challenge (required)
+        name: The name of the challenge (optional)
+        description: The description of the challenge (optional)
+        solution: The VimGolf solution (optional)
+    """
+    input: str
+    output: str
+    name: Optional[str]
+    description: Optional[str]
+    solution: Optional[str]
 
 class VimGolfEnvResult(BaseModel):
     """Represents a single result of VimGolf challenge environment,
