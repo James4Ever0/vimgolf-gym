@@ -4,6 +4,6 @@
 
 # TODO: annotate class attributes next to the definition
 uv pip install .
-env PDOC_PROCESS=1 pdoc -d google -o ./docs vimgolf_gym
+env PDOC_PROCESS=1 pdoc -d google -o ./docs vimgolf_gym '!vimgolf_gym.*.*.model_config' '!vimgolf_gym.*.*.model_extra'
 cd docs
 python3 -m http.server
