@@ -5,9 +5,18 @@
 
 <!-- TODO: create a dedicated cybergod_vimgolf_gym docker image, separate from cybergod_worker_terminal and so on -->
 
-# vimgolf-gym
-
-OpenAI gym like environment and benchmark for Vimgolf.
+<div>
+<p align="center"><h1>vimgolf-gym</h1></p>
+<p align="center">OpenAI gym like environment and benchmark for Vimgolf.</p>
+<p align="center">
+<a href="https://github.com/james4ever0/vimgolf-gym/blob/master/LICENSE"><img alt="License: WTFPL"
+ src="https://img.shields.io/badge/license-UNLICENSE-green.svg?style=flat"></a>
+<a href="https://pypi.org/project/vimgolf-gym/"><img alt="PyPI" src="https://img.shields.io/pypi/v/vimgolf-gym"></a>
+<a href="https://james4ever0.github.io/vimgolf-gym/"><img src="https://img.shields.io/badge/API-Docs-blueviolet" alt="API documentation"></a>
+<a href="https://pepy.tech/projects/vimgolf-gym"><img src="https://static.pepy.tech/badge/vimgolf-gym" alt="PyPI Downloads"></a>
+<a href="https://github.com/james4ever0/vimgolf-gym"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+</p>
+</div>
 
 ## Demo
 
@@ -25,7 +34,7 @@ Results:
 
 <details>
 
-<summary>Code:</summary>
+<summary>Reproduction code</summary>
 
 ```python
 import vimgolf_gym
@@ -95,7 +104,7 @@ Results:
 
 <details>
 
-<summary>Code:</summary>
+<summary>Reproduction code</summary>
 
 ```python
 import vimgolf_gym
