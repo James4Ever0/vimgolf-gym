@@ -7,14 +7,31 @@ import json
 import logging
 
 import vimgolf.vimgolf
-from vimgolf.vimgolf import (IGNORED_KEYSTROKES, Challenge, Result, Status,
-                             VimRunner, filecmp, format_, get_challenge_url,
-                             get_keycode_repr, input_loop, logger, os,
-                             parse_keycodes, sys, tempfile,
-                             tokenize_keycode_reprs, upload_result,
-                             working_directory, write)
+from vimgolf.vimgolf import (
+    IGNORED_KEYSTROKES,
+    Challenge,
+    Result,
+    Status,
+    VimRunner,
+    filecmp,
+    format_,
+    get_challenge_url,
+    get_keycode_repr,
+    input_loop,
+    logger,
+    os,
+    parse_keycodes,
+    sys,
+    tempfile,
+    tokenize_keycode_reprs,
+    upload_result,
+    working_directory,
+    write,
+)
 
-VIMGOLF_VIMRC = os.path.join(os.path.dirname(vimgolf.vimgolf.__file__), "vimgolf.vimrc")
+_VIMGOLF_VIMRC = os.path.join(
+    os.path.dirname(vimgolf.vimgolf.__file__), "vimgolf.vimrc"
+)
 
 
 def parse_commandline_arguments():
@@ -32,7 +49,7 @@ def parse_commandline_arguments():
         --output_file: str, the path to the output file
         --log_file: str, the path to the log file
     """
-    
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--input_file", type=str, required=True)
     parser.add_argument("--output_file", type=str, required=True)
@@ -151,7 +168,7 @@ def play(challenge, results=None):
             with open(infile, "w") as f:
                 f.write(challenge.in_text)
 
-            vimrc = VIMGOLF_VIMRC
+            vimrc = _VIMGOLF_VIMRC
             play_args = [
                 "-Z",  # restricted mode, utilities not allowed
                 "-n",  # no swap file, memory only editing

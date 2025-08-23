@@ -19,6 +19,7 @@ class Cursor(pydantic.BaseModel):
     y: int
     hidden: bool
 
+
 def decode_bytes_to_utf8_safe(_bytes: bytes):
     """
     Decode with UTF-8, but replace errors with a replacement character (�).
@@ -99,7 +100,7 @@ class AvtScreen:
             png_output_path: The path to write the PNG image to.
         """
         self.vt.screenshot(png_output_path)
-    
+
     def close(self):
         """
         Releases all resources used by the terminal emulator.
@@ -137,7 +138,7 @@ class TerminalProcess:
     def write(self, data: bytes):
         """Writes input data to the terminal process"""
         self.pty_process.write(data)
-    
+
     def close(self):
         """Closes the terminal process and the reading thread"""
         self.pty_process.close()
@@ -152,13 +153,13 @@ class TerminalProcess:
                 process_output_bytes = self.pty_process.read(1024)
                 # write bytes to pyte screen
                 self.vt_screen.write_bytes(process_output_bytes)
-            except KeyboardInterrupt: # user interrupted
+            except KeyboardInterrupt:  # user interrupted
                 break
-            except SystemExit: # python process exit
+            except SystemExit:  # python process exit
                 break
-            except SystemError: # python error
+            except SystemError:  # python error
                 break
-            except EOFError: # terminal died
+            except EOFError:  # terminal died
                 break
             except:
                 # Timeout means no data available, EOF means process ended
@@ -175,9 +176,7 @@ class TerminalExecutor:
         Args:
             command: List of command strings to execute
         """
-        self.terminal = TerminalProcess(
-            command=command, width=width, height=height
-        )
+        self.terminal = TerminalProcess(command=command, width=width, height=height)
 
     def input(self, text: str):
         """
@@ -192,7 +191,7 @@ class TerminalExecutor:
         """
         Get the current display of the terminal emulator as a string.
         """
-        
+
         return self.terminal.vt_screen.display
 
     def screenshot(self, png_save_path: str):
@@ -203,7 +202,7 @@ class TerminalExecutor:
             png_save_path: The path to save the screenshot to
         """
         self.terminal.vt_screen.screenshot(png_save_path)
-    
+
     def close(self):
         """
         Closes the terminal emulator process and the associated reading thread.
@@ -218,7 +217,7 @@ def test_harmless_command_locally_with_bash():
     display to a file.
     """
     SLEEP_INTERVAL = 0.5
-    command = ["docker", "run" , "--rm", "-it", "alpine"]
+    command = ["docker", "run", "--rm", "-it", "alpine"]
     input_events = ['echo "Hello World!"', "\n"]
     executor = TerminalExecutor(command=command, width=80, height=24)
     time.sleep(1)
@@ -234,6 +233,7 @@ def test_harmless_command_locally_with_bash():
     executor.screenshot("./terminal_executor_screenshot.png")
     print("Done")
 
+
 def test():
     """
     Runs a test for the TerminalExecutor class by running a harmless command
@@ -244,6 +244,7 @@ def test():
     a real environment.
     """
     test_harmless_command_locally_with_bash()
+
 
 if __name__ == "__main__":
     test()

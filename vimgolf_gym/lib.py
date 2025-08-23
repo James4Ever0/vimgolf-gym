@@ -26,29 +26,29 @@ import vimgolf_gym.dataclasses as dataclasses
 import vimgolf_gym.log_parser as log_parser
 import vimgolf_gym.terminal_executor as terminal_executor
 
-HOMEDIR = os.path.expanduser("~")
+_HOMEDIR = os.path.expanduser("~")
 
-CYBERGOD_VIMGOLF_DATASET_BASEDIR = os.path.join(
-    HOMEDIR, ".cache", "cybergod-vimgolf-dataset"
+_CYBERGOD_VIMGOLF_DATASET_BASEDIR = os.path.join(
+    _HOMEDIR, ".cache", "cybergod-vimgolf-dataset"
 )
 
-CYBERGOD_VIMGOLF_GYM_DATASET_DOWNLOADED = os.path.join(
-    CYBERGOD_VIMGOLF_DATASET_BASEDIR, "DATASET_DOWNLOADED"
+_CYBERGOD_VIMGOLF_GYM_DATASET_DOWNLOADED = os.path.join(
+    _CYBERGOD_VIMGOLF_DATASET_BASEDIR, "DATASET_DOWNLOADED"
 )  # a flag to indicate whether the dataset has been downloaded
 
-os.makedirs(CYBERGOD_VIMGOLF_DATASET_BASEDIR, exist_ok=True)
+os.makedirs(_CYBERGOD_VIMGOLF_DATASET_BASEDIR, exist_ok=True)
 
 
 class DatasetInitError(Exception):
     pass
 
 
-def assert_challenge_id_length(challenge_id: str):
+def assert_challenge_id_length(challenge_id: str) -> bool:
     """Assert the challenge_id length to be 24"""
     assert len(challenge_id) == 24
 
 
-def make(env_name: str, use_docker: bool = False):
+def make(env_name: str, use_docker: bool = False) -> "VimGolfEnv":
     """
     Create a VimGolf environment.
 
@@ -86,7 +86,7 @@ def make(env_name: str, use_docker: bool = False):
     return env
 
 
-def make_test():
+def make_test() -> "VimGolfEnv":
     """
     Create an environment for a simple test challenge.
 
@@ -98,7 +98,7 @@ def make_test():
     return make_env_with_text(input_text, output_text)
 
 
-def make_env_with_text(input_text: str, output_text: str):
+def make_env_with_text(input_text: str, output_text: str) -> "VimGolfEnv":
     """
     Create a VimGolfEnv with given input and output text.
 
@@ -123,7 +123,7 @@ def make_env_with_text(input_text: str, output_text: str):
     return make_offline(input_file, output_file)
 
 
-def make_offline(input_file: str, output_file: str):
+def make_offline(input_file: str, output_file: str) -> "VimGolfEnv":
     """
     Create an environment from a VimGolf challenge given as a local file.
 
@@ -138,7 +138,7 @@ def make_offline(input_file: str, output_file: str):
     return VimGolfEnv(input_file, output_file, use_docker=use_docker)
 
 
-def make_online(challenge_id: str):
+def make_online(challenge_id: str) -> "VimGolfEnv":
     """
     Create an environment from a VimGolf challenge online.
 
@@ -157,7 +157,9 @@ def make_online(challenge_id: str):
     return make_env_with_challenge(challenge)
 
 
-def make_env_with_challenge(challenge: dataclasses.VimGolfChallengeDefinition):
+def make_env_with_challenge(
+    challenge: dataclasses.VimGolfChallengeDefinition,
+) -> "VimGolfEnv":
     """
     Create an environment from a VimGolfChallengeDefinition object.
 
@@ -175,7 +177,7 @@ def make_env_with_challenge(challenge: dataclasses.VimGolfChallengeDefinition):
     )
 
 
-def init_cybergod_vimgolf_dataset():
+def init_cybergod_vimgolf_dataset() -> None:
     """
     Initialize the local dataset by downloading it if it does not exist yet.
 
@@ -184,11 +186,11 @@ def init_cybergod_vimgolf_dataset():
 
     This function is called by `list_local_challenge_ids` and `make_offline_with_cybergod_dataset`.
     """
-    if not os.path.exists(CYBERGOD_VIMGOLF_GYM_DATASET_DOWNLOADED):
+    if not os.path.exists(_CYBERGOD_VIMGOLF_GYM_DATASET_DOWNLOADED):
         download_cybergod_vimgolf_dataset()
 
 
-def list_local_challenge_ids():
+def list_local_challenge_ids() -> list[str]:
     """
     List all challenge ids in the local dataset.
 
@@ -197,17 +199,17 @@ def list_local_challenge_ids():
     Returns:
         list[str]: a list of all challenge ids in the local dataset.
     """
-    
+
     init_cybergod_vimgolf_dataset()
     challenges_dir = os.path.join(
-        CYBERGOD_VIMGOLF_DATASET_BASEDIR,
+        _CYBERGOD_VIMGOLF_DATASET_BASEDIR,
         "challenges",
     )
     challenge_ids = os.listdir(challenges_dir)
     return challenge_ids
 
 
-def make_offline_with_cybergod_dataset(challenge_id: str):
+def make_offline_with_cybergod_dataset(challenge_id: str) -> "VimGolfEnv":
     """
     Load a VimGolf challenge from the local dataset and make an environment
     out of it.
@@ -244,7 +246,7 @@ def get_local_challenge_metadata(challenge_id: str):
         AssertionError: If the metadata file does not exist.
     """
     metadata_file = os.path.join(
-        CYBERGOD_VIMGOLF_DATASET_BASEDIR, "challenges", challenge_id, "metadata.json"
+        _CYBERGOD_VIMGOLF_DATASET_BASEDIR, "challenges", challenge_id, "metadata.json"
     )
     assert os.path.exists(metadata_file), (
         "Metadata file '%s' does not exist" % metadata_file
@@ -271,7 +273,7 @@ def get_local_challenge_worst_solution(challenge_id: str):
         AssertionError: If the worst solution file does not exist.
     """
     metadata_file = os.path.join(
-        CYBERGOD_VIMGOLF_DATASET_BASEDIR,
+        _CYBERGOD_VIMGOLF_DATASET_BASEDIR,
         "challenges",
         challenge_id,
         "worst_solution.json",
@@ -323,7 +325,7 @@ def get_local_challenge_definition(challenge_id: str):
         AssertionError: If the challenge file does not exist.
     """
     challenge_file = os.path.join(
-        CYBERGOD_VIMGOLF_DATASET_BASEDIR, "challenges", challenge_id, "challenge.json"
+        _CYBERGOD_VIMGOLF_DATASET_BASEDIR, "challenges", challenge_id, "challenge.json"
     )
     assert os.path.exists(challenge_file), (
         "Challenge file '%s' does not exist" % challenge_file
@@ -340,13 +342,15 @@ def download_cybergod_vimgolf_dataset():
     This function is called when the dataset is not initialized yet. It downloads the dataset
     from various sources (Kaggle, Hugging Face, GitHub Releases, GitHub Mirror) and extracts it
     to the dataset directory. After the download is finished, it touches the flag file
-    CYBERGOD_VIMGOLF_GYM_DATASET_DOWNLOADED to indicate that the dataset is initialized.
+    _CYBERGOD_VIMGOLF_GYM_DATASET_DOWNLOADED to indicate that the dataset is initialized.
 
     If the download fails, it raises an exception and cleans up the dataset directory.
 
     :raises DatasetInitError: If the dataset download fails.
     """
-    print("Initializing CyberGod VimGolf dataset at:", CYBERGOD_VIMGOLF_DATASET_BASEDIR)
+    print(
+        "Initializing CyberGod VimGolf dataset at:", _CYBERGOD_VIMGOLF_DATASET_BASEDIR
+    )
     try:
         # TODO: add huggingface, hf-mirror.com, github releases and github mirror links
         download_urls = [
@@ -377,13 +381,13 @@ def download_cybergod_vimgolf_dataset():
                     raise DatasetInitError("Failed to download the dataset")
             with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
                 # extract to CYBERGOD_VIMGOLF_GYM_DATASET_DIR
-                zip_ref.extractall(CYBERGOD_VIMGOLF_DATASET_BASEDIR)
-        # after all, touch the flag CYBERGOD_VIMGOLF_GYM_DATASET_DOWNLOADED
-        pathlib.Path(CYBERGOD_VIMGOLF_GYM_DATASET_DOWNLOADED).touch()
+                zip_ref.extractall(_CYBERGOD_VIMGOLF_DATASET_BASEDIR)
+        # after all, touch the flag _CYBERGOD_VIMGOLF_GYM_DATASET_DOWNLOADED
+        pathlib.Path(_CYBERGOD_VIMGOLF_GYM_DATASET_DOWNLOADED).touch()
     finally:
-        if not os.path.exists(CYBERGOD_VIMGOLF_GYM_DATASET_DOWNLOADED):
+        if not os.path.exists(_CYBERGOD_VIMGOLF_GYM_DATASET_DOWNLOADED):
             # cleanup the dataset basedir, if the dataset is not downloaded successfully
-            shutil.rmtree(CYBERGOD_VIMGOLF_DATASET_BASEDIR)
+            shutil.rmtree(_CYBERGOD_VIMGOLF_DATASET_BASEDIR)
 
 
 class VimGolfEnv:
@@ -406,8 +410,12 @@ class VimGolfEnv:
         self.use_docker = use_docker
         self.input_file = input_file
         self.output_file = output_file
-        assert os.path.isfile(self.input_file), f"Input file {self.input_file} does not exist."
-        assert os.path.isfile(self.output_file), f"Output file {self.output_file} does not exist."
+        assert os.path.isfile(
+            self.input_file
+        ), f"Input file {self.input_file} does not exist."
+        assert os.path.isfile(
+            self.output_file
+        ), f"Output file {self.output_file} does not exist."
         # TODO: run a modified version of vimgolf local python script writing progress to a jsonl file, which embeds in this script, for easy state inspection and data collection (we can create a temporary directory for cleanup)
         self.log_directory = tempfile.TemporaryDirectory()
 
