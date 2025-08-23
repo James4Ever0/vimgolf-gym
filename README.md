@@ -177,7 +177,11 @@ if __name__ == "__main__":
 ## Installation
 
 ```bash
+# install from pypi
 pip install vimgolf-gym
+
+# or install the latest version from github
+pip install git+https://github.com/james4ever0/vimgolf-gym.git
 ```
 
 If you do have vim installed locally, you can use this docker image:
