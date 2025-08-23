@@ -6,7 +6,7 @@
 <!-- TODO: create a dedicated cybergod_vimgolf_gym docker image, separate from cybergod_worker_terminal and so on -->
 
 <div>
-<p align="center"><h1>vimgolf-gym</h1></p>
+<p align="center"><h1 align="center">vimgolf-gym</h1></p>
 <p align="center">OpenAI gym like environment and benchmark for Vimgolf.</p>
 <p align="center">
 <a href="https://github.com/james4ever0/vimgolf-gym/blob/main/LICENSE"><img alt="License: WTFPL"
