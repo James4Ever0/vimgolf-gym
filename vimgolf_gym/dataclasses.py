@@ -26,6 +26,7 @@ class VimGolfCustomChallenge(BaseModel):
     description: Optional[str]
     solution: Optional[str]
 
+
 class VimGolfEnvResult(BaseModel):
     """Represents a single result of VimGolf challenge environment,
 

@@ -219,3 +219,5 @@ test_log_backup.txt
 test_results.txt
 
 *.png
+
+vim-buffer-live-sync-how-to.txt

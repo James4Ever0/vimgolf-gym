@@ -85,7 +85,9 @@ def make(
     if env_name == "vimgolf-test":
         env = make_test()
     elif env_name == "vimgolf-custom":
-        assert custom_challenge, "custom_challenge must be provided for vimgolf-custom environment"
+        assert (
+            custom_challenge
+        ), "custom_challenge must be provided for vimgolf-custom environment"
         env = make_env_with_text(
             input=custom_challenge.input, output=custom_challenge.output
         )
@@ -424,19 +426,29 @@ class VimGolfEnv:
             height (int): the height of the terminal
             use_docker (bool): whether use dockerized executor or local (requiring vim installed)
         """
+
         self.use_docker = use_docker
+        """whether use dockerized executor or local (requiring vim installed)"""
+
         self.input_file = input_file
+        """the input file path"""
+
         self.output_file = output_file
+        """the output file path"""
+
         assert os.path.isfile(
             self.input_file
         ), f"Input file {self.input_file} does not exist."
         assert os.path.isfile(
             self.output_file
         ), f"Output file {self.output_file} does not exist."
+
         # TODO: run a modified version of vimgolf local python script writing progress to a jsonl file, which embeds in this script, for easy state inspection and data collection (we can create a temporary directory for cleanup)
         self.log_directory = tempfile.TemporaryDirectory()
+        """the log directory, where tempfiles stored"""
 
         self.log_file = os.path.join(self.log_directory.name, "vimgolf.log")
+        """the log file path, used to retrieve progress info of the vimgolf process"""
 
         if self.use_docker:
             mountpoint = "/vimgolf_gym_workdir"
@@ -477,10 +489,19 @@ class VimGolfEnv:
                 self.log_file,
             ]
 
+        self.command: list[str]
+        """the command passed to underlying terminal executor"""
+
         self.width = width
+        """terminal width"""
         self.height = height
+        """terminal height"""
         self.create_executor_and_log_watcher()
 
+        self.executor: terminal_executor.TerminalExecutor
+        """terminal executor for running vimgolf process"""
+        self.log_watcher: log_parser.VimGolfLogWatcher
+        """log watcher for tracking vimgolf log output"""
         atexit.register(self.log_directory.cleanup)
 
     def act(self, action: str):
@@ -517,7 +538,7 @@ class VimGolfEnv:
     @property
     def results(self):
         """The results of the vimgolf challenge environment
-        
+
         Returns:
             list[VimGolfEnvResult]: The results of the vimgolf challenge environment
         """
@@ -526,7 +547,7 @@ class VimGolfEnv:
     @property
     def success_results(self):
         """The success results of the vimgolf challenge environment
-        
+
         Returns:
             list[VimGolfEnvResult]: The success results of the vimgolf challenge environment
         """

@@ -1,4 +1,4 @@
-"""
+cast"""
 Terminal executor
 
 Code source: [terminal_asciicast_record_executor.py](https://github.com/James4Ever0/agi_computer_control/blob/master/web_gui_terminal_recorder/executor_and_replayer/terminal_asciicast_record_executor.py] (modified)
@@ -11,17 +11,19 @@ import time
 
 import agg_python_bindings
 import ptyprocess
-import pydantic
+from pydantic import BaseModel
+from typing import Protocol, cast
 
 
-class Cursor(pydantic.BaseModel):
+class Cursor(BaseModel):
     """Cursor position and visibility.
-    
+
     Attributes:
-        x (int): The x-coordinate of the cursor.
-        y (int): The y-coordinate of the cursor.
+        x (int): The x-coordinate (column) of the cursor.
+        y (int): The y-coordinate (row/line) of the cursor.
         hidden (bool): True if the cursor is hidden, False otherwise.
     """
+
     x: int
     y: int
     hidden: bool
@@ -39,6 +41,16 @@ def decode_bytes_to_utf8_safe(_bytes: bytes):
 # screen traits: write_bytes, display, screenshot
 
 
+class _TerminalScreenProtocol(Protocol):
+    def write_bytes(self, _bytes: bytes): ...
+    @property
+    def display(self) -> str: ...
+    def screenshot(self, png_output_path: str): ...
+    def close(self): ...
+    @property
+    def cursor(self) -> Cursor: ...
+
+
 class AvtScreen:
     def __init__(self, width: int, height: int):
         """
@@ -49,6 +61,7 @@ class AvtScreen:
             height (int): The height of the virtual terminal emulator.
         """
         self.vt = agg_python_bindings.TerminalEmulator(width, height)
+        """terminal emulator provided by avt"""
 
     def write_bytes(self, _bytes: bytes):
         """
@@ -118,14 +131,20 @@ class TerminalProcess:
             backend (str, optional): Backend to use for terminal emulator. Defaults to "avt".
         """
         rows, cols = height, width
-        self.pty_process = ptyprocess.PtyProcess.spawn(command, dimensions=(rows, cols))
+        self.pty_process: ptyprocess.PtyProcess = cast(ptyprocess.PtyProcess,ptyprocess.PtyProcess.spawn(command, dimensions=(rows, cols)))
+        """a process executing command in a pseudo terminal"""
+        
         if backend == "avt":
             self.vt_screen = AvtScreen(width=width, height=height)
+            """virtual terminal screen"""
         else:
             raise ValueError(
                 "Unknown terminal emulator backend '%s' (known ones: avt, pyte)"
                 % backend
             )
+        
+        self.vt_screen = cast(_TerminalScreenProtocol, self.vt_screen)
+
         self.__pty_process_reading_thread = threading.Thread(
             target=self.__read_and_update_screen, daemon=True
         )
@@ -147,7 +166,7 @@ class TerminalProcess:
 
     def __read_and_update_screen(self, poll_interval=0.01):
         """Reads available output from terminal and updates Pyte screen
-        
+
         Args:
             poll_interval (float, optional): Interval in seconds to poll for available output. Defaults to 0.01.
         """
