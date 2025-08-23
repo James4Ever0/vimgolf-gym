@@ -7,6 +7,10 @@ Library of vimgolf-gym
 
 # TODO: implement a gradual scoring system by comparing the buffer with the target output, extracting the vim edit buffer in the middle of execution
 
+# Vim API reference:
+# https://github.com/LachlanGray/vim-agent
+# https://github.com/nsbradford/VimGPT
+
 # TODO: dockerize the executor part, push the image, offer an option or environment variable to use dockerized executor
 
 import atexit
