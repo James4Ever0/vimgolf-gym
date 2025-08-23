@@ -186,7 +186,7 @@ pip install vimgolf-gym
 pip install git+https://github.com/james4ever0/vimgolf-gym.git
 ```
 
-If you do have vim installed locally, you can use this docker image:
+If you do not have vim installed locally, or want an extra layer of isolation, you can use this docker image:
 
 ```bash
 # build the image
