@@ -9,7 +9,7 @@
 <p align="center"><h1>vimgolf-gym</h1></p>
 <p align="center">OpenAI gym like environment and benchmark for Vimgolf.</p>
 <p align="center">
-<a href="https://github.com/james4ever0/vimgolf-gym/blob/master/LICENSE"><img alt="License: WTFPL"
+<a href="https://github.com/james4ever0/vimgolf-gym/blob/main/LICENSE"><img alt="License: WTFPL"
  src="https://img.shields.io/badge/license-UNLICENSE-green.svg?style=flat"></a>
 <a href="https://pypi.org/project/vimgolf-gym/"><img alt="PyPI" src="https://img.shields.io/pypi/v/vimgolf-gym"></a>
 <a href="https://james4ever0.github.io/vimgolf-gym/"><img src="https://img.shields.io/badge/API-Docs-blueviolet" alt="API documentation"></a>
