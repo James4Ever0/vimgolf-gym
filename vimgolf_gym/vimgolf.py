@@ -45,9 +45,9 @@ def parse_commandline_arguments():
         A Namespace object with the parsed arguments.
 
     The parsed arguments are:
-        --input_file: str, the path to the input file
-        --output_file: str, the path to the output file
-        --log_file: str, the path to the log file
+        - --input_file: str, the path to the input file
+        - --output_file: str, the path to the output file
+        - --log_file: str, the path to the log file
     """
 
     parser = argparse.ArgumentParser()
@@ -68,7 +68,6 @@ def main():
     The local function is called with the input file, output file and an empty
     string as the init_keys argument.
 
-    :return: None
     """
     args = parse_commandline_arguments()
     log_file = args.log_file

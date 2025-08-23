@@ -120,14 +120,29 @@ class VimGolfChallengeDefinition(BaseModel):
 
 
 def parse_json_file(file_path: Path, model: type[BaseModel]) -> BaseModel:
-    """Parse a JSON file into a specified Pydantic model"""
+    """Parse a JSON file into a specified Pydantic model
+    
+    Args:
+        file_path (Path): Path to the JSON file.
+        model (type[BaseModel]): Pydantic model to parse the JSON into.
+    
+    Returns:
+        BaseModel: Parsed model instance
+    """
     with open(file_path, "r", encoding="utf-8") as f:
         data = json.load(f)
     return model.parse_obj(data)
 
 
 def parse_public_solution_header(input_str: str) -> VimGolfParsedPublicSolutionHeader:
-    """Parse the public solution header string"""
+    """Parse the public solution header string
+    
+    Args:
+        input_str (str): Public solution header string.
+    
+    Returns:
+        VimGolfParsedPublicSolutionHeader
+    """
     template = "#{rank} {user_name} / @{user_id} - Score: {score} - {month}/{day}/{year} @ {hour}:{minute}"
 
     # Parse the input string using the template

@@ -1,7 +1,7 @@
 """
 Terminal executor
 
-Code from: https://github.com/James4Ever0/agi_computer_control/blob/master/web_gui_terminal_recorder/executor_and_replayer/terminal_asciicast_record_executor.py (modified)
+Code source: [terminal_asciicast_record_executor.py](https://github.com/James4Ever0/agi_computer_control/blob/master/web_gui_terminal_recorder/executor_and_replayer/terminal_asciicast_record_executor.py] (modified)
 """
 
 # pending pypi project name: termexec
@@ -15,6 +15,13 @@ import pydantic
 
 
 class Cursor(pydantic.BaseModel):
+    """Cursor position and visibility.
+    
+    Attributes:
+        x (int): The x-coordinate of the cursor.
+        y (int): The y-coordinate of the cursor.
+        hidden (bool): True if the cursor is hidden, False otherwise.
+    """
     x: int
     y: int
     hidden: bool
@@ -37,12 +44,9 @@ class AvtScreen:
         """
         Initialize an AvtScreen object.
 
-        Parameters
-        ----------
-        width : int
-            The width of the virtual terminal emulator.
-        height : int
-            The height of the virtual terminal emulator.
+        Args:
+            width (int): The width of the virtual terminal emulator.
+            height (int): The height of the virtual terminal emulator.
         """
         self.vt = agg_python_bindings.TerminalEmulator(width, height)
 
@@ -53,10 +57,8 @@ class AvtScreen:
         The bytes are decoded with UTF-8 and any decoding errors are replaced with a
         replacement character (�).
 
-        Args
-        ----
-        _bytes: bytes
-            The bytes to be written to the virtual terminal emulator.
+        Args:
+            _bytes (bytes): The bytes to be written to the virtual terminal emulator.
         """
         decoded_bytes = decode_bytes_to_utf8_safe(_bytes)
         self.vt.feed_str(decoded_bytes)
@@ -66,12 +68,8 @@ class AvtScreen:
         """
         Get the current position of the cursor as a `Cursor` object.
 
-        Returns
-        -------
-        Cursor
-            A `Cursor` object with `x` and `y` properties for the current column and row
-            of the cursor, respectively, and a `hidden` property which is `True` if the
-            cursor is hidden and `False` otherwise.
+        Returns:
+            Cursor: A `Cursor` object with `x` and `y` properties for the current column and row of the cursor, respectively, and a `hidden` property which is `True` if the cursor is hidden and `False` otherwise.
         """
         col, row, visible = self.vt.get_cursor()
         ret = Cursor(x=col, y=row, hidden=not visible)
@@ -82,10 +80,8 @@ class AvtScreen:
         """
         Get the current display of the terminal emulator as a string.
 
-        Returns
-        -------
-        str
-            A string representation of the current display of the terminal emulator.
+        Returns:
+            str: A string representation of the current display of the terminal emulator.
         """
         ret = "\n".join(self.vt.text_raw())
         return ret
@@ -114,8 +110,12 @@ class TerminalProcess:
     def __init__(self, command: list[str], width: int, height: int, backend="avt"):
         """
         Initializes the terminal emulator with a command to execute.
+
         Args:
-            command: List of command strings to execute in the terminal
+            command (list[str]): List of command strings to execute in the terminal
+            width (int): Width of the terminal emulator
+            height (int): Height of the terminal emulator
+            backend (str, optional): Backend to use for terminal emulator. Defaults to "avt".
         """
         rows, cols = height, width
         self.pty_process = ptyprocess.PtyProcess.spawn(command, dimensions=(rows, cols))
@@ -146,7 +146,11 @@ class TerminalProcess:
         self.__pty_process_reading_thread.join()
 
     def __read_and_update_screen(self, poll_interval=0.01):
-        """Reads available output from terminal and updates Pyte screen"""
+        """Reads available output from terminal and updates Pyte screen
+        
+        Args:
+            poll_interval (float, optional): Interval in seconds to poll for available output. Defaults to 0.01.
+        """
         while True:
             try:
                 # ptyprocess.read is blocking. only pexpect has read_nonblocking
@@ -174,13 +178,18 @@ class TerminalExecutor:
         Initializes executor with a command to run in terminal emulator, using avt as backend.
 
         Args:
-            command: List of command strings to execute
+            command (list[str]): List of command strings to execute
+            width (int): Width of the terminal emulator
+            height (int): Height of the terminal emulator
         """
         self.terminal = TerminalProcess(command=command, width=width, height=height)
 
     def input(self, text: str):
         """
         Sends input text to the terminal process
+
+        Args:
+            text (str): The input text to send
         """
         self.terminal.write(text.encode())
         # Allow time for processing output
@@ -199,7 +208,7 @@ class TerminalExecutor:
         Saves the current display of the terminal emulator as a .png file
 
         Args:
-            png_save_path: The path to save the screenshot to
+            png_save_path (str): The path to save the screenshot to
         """
         self.terminal.vt_screen.screenshot(png_save_path)
 

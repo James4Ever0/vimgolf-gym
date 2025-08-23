@@ -417,11 +417,12 @@ class VimGolfEnv:
     ):
         """Initialize the environment with the given input and output files.
 
-        :param input_file: the input file path
-        :param output_file: the output file path
-        :param width: the width of the terminal
-        :param height: the height of the terminal
-        :param use_docker: whether use dockerized executor or local (requiring vim installed)
+        Args:
+            input_file (str): the input file path
+            output_file (str): the output file path
+            width (int): the width of the terminal
+            height (int): the height of the terminal
+            use_docker (bool): whether use dockerized executor or local (requiring vim installed)
         """
         self.use_docker = use_docker
         self.input_file = input_file
@@ -485,7 +486,8 @@ class VimGolfEnv:
     def act(self, action: str):
         """Take an action
 
-        :param action: the action to take
+        Args:
+            action (str): the action to take
         """
         self.executor.input(action)
 
@@ -498,8 +500,8 @@ class VimGolfEnv:
         """
         Return the best success result in the log watcher.
 
-        :return: the best success result
-        :rtype: VimGolfEnvResult | None
+        Returns:
+            Optional[VimGolfEnvResult]: The best success result.
         """
         return self.log_watcher.get_best_success_result()
 
@@ -507,19 +509,27 @@ class VimGolfEnv:
         """
         Return the last success result in the log watcher.
 
-        :return: the last success result
-        :rtype: VimGolfEnvResult | None
+        Returns:
+            Optional[VimGolfEnvResult]: The last success result
         """
         return self.log_watcher.get_last_success_result()
 
     @property
     def results(self):
-        """The results of the vimgolf challenge environment"""
+        """The results of the vimgolf challenge environment
+        
+        Returns:
+            list[VimGolfEnvResult]: The results of the vimgolf challenge environment
+        """
         return self.log_watcher.results
 
     @property
     def success_results(self):
-        """The success results of the vimgolf challenge environment"""
+        """The success results of the vimgolf challenge environment
+        
+        Returns:
+            list[VimGolfEnvResult]: The success results of the vimgolf challenge environment
+        """
         return self.log_watcher.success_results
 
     def create_executor_and_log_watcher(self):
@@ -553,7 +563,9 @@ class VimGolfEnv:
     def screenshot(self):
         """Take a screenshot of the environment
 
-        :return: the screenshot"""
+        Returns:
+            PIL.Image.Image: The screenshot
+        """
         with tempfile.TemporaryDirectory() as tmpdir:
             png_tmpfile_path = os.path.join(tmpdir, "screenshot.png")
             self.executor.screenshot(png_tmpfile_path)

@@ -328,41 +328,56 @@
 </span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>
 </span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>
 </span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a><span class="k">def</span><span class="w"> </span><span class="nf">parse_json_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">BaseModel</span><span class="p">:</span>
-</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a JSON file into a specified Pydantic model&quot;&quot;&quot;</span>
-</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a>    <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">parse_obj</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a>
-</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a>
-</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a><span class="k">def</span><span class="w"> </span><span class="nf">parse_public_solution_header</span><span class="p">(</span><span class="n">input_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VimGolfParsedPublicSolutionHeader</span><span class="p">:</span>
-</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse the public solution header string&quot;&quot;&quot;</span>
-</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>    <span class="n">template</span> <span class="o">=</span> <span class="s2">&quot;#</span><span class="si">{rank}</span><span class="s2"> </span><span class="si">{user_name}</span><span class="s2"> / @</span><span class="si">{user_id}</span><span class="s2"> - Score: </span><span class="si">{score}</span><span class="s2"> - </span><span class="si">{month}</span><span class="s2">/</span><span class="si">{day}</span><span class="s2">/</span><span class="si">{year}</span><span class="s2"> @ </span><span class="si">{hour}</span><span class="s2">:</span><span class="si">{minute}</span><span class="s2">&quot;</span>
-</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a>
-</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a>    <span class="c1"># Parse the input string using the template</span>
-</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a>    <span class="n">parsed_data</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">input_str</span><span class="p">)</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a JSON file into a specified Pydantic model</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a><span class="sd">    </span>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a><span class="sd">    Args:</span>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a><span class="sd">        file_path (Path): Path to the JSON file.</span>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a><span class="sd">        model (type[BaseModel]): Pydantic model to parse the JSON into.</span>
+</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a><span class="sd">    </span>
+</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a><span class="sd">    Returns:</span>
+</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a><span class="sd">        BaseModel: Parsed model instance</span>
+</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a>        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a>    <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">parse_obj</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 </span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a>
-</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a>    <span class="c1"># Convert parsed fields to integers and process the year</span>
-</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a>    <span class="n">month</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;month&quot;</span><span class="p">])</span>
-</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a>    <span class="n">day</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;day&quot;</span><span class="p">])</span>
-</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a>    <span class="n">year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">])</span>
-</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a>    <span class="n">hour</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;hour&quot;</span><span class="p">])</span>
-</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a>    <span class="n">minute</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;minute&quot;</span><span class="p">])</span>
-</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a>
-</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a>    <span class="c1"># Adjust two-digit year to four digits</span>
-</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a>    <span class="n">full_year</span> <span class="o">=</span> <span class="n">year</span> <span class="o">+</span> <span class="mi">2000</span> <span class="k">if</span> <span class="n">year</span> <span class="o">&lt;</span> <span class="mi">70</span> <span class="k">else</span> <span class="n">year</span> <span class="o">+</span> <span class="mi">1900</span>
-</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a>
-</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a>    <span class="c1"># Create a datetime object and format the timestamp</span>
-</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a>    <span class="n">dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="n">full_year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">day</span><span class="p">,</span> <span class="n">hour</span><span class="p">,</span> <span class="n">minute</span><span class="p">)</span>
-</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a>    <span class="n">timestamp</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
-</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a>
-</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a>    <span class="n">ret</span> <span class="o">=</span> <span class="n">VimGolfParsedPublicSolutionHeader</span><span class="p">(</span>
-</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>        <span class="n">rank</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;rank&quot;</span><span class="p">],</span>
-</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>        <span class="n">score</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">],</span>
-</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>        <span class="n">user_name</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;user_name&quot;</span><span class="p">],</span>
-</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>        <span class="n">user_id</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">],</span>
-</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a>        <span class="n">date</span><span class="o">=</span><span class="n">timestamp</span><span class="p">,</span>
-</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a>    <span class="p">)</span>
-</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a>    <span class="k">return</span> <span class="n">ret</span>
+</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a>
+</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a><span class="k">def</span><span class="w"> </span><span class="nf">parse_public_solution_header</span><span class="p">(</span><span class="n">input_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VimGolfParsedPublicSolutionHeader</span><span class="p">:</span>
+</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse the public solution header string</span>
+</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a><span class="sd">    </span>
+</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a><span class="sd">    Args:</span>
+</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a><span class="sd">        input_str (str): Public solution header string.</span>
+</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a><span class="sd">    </span>
+</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a><span class="sd">    Returns:</span>
+</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a><span class="sd">        VimGolfParsedPublicSolutionHeader</span>
+</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a>    <span class="n">template</span> <span class="o">=</span> <span class="s2">&quot;#</span><span class="si">{rank}</span><span class="s2"> </span><span class="si">{user_name}</span><span class="s2"> / @</span><span class="si">{user_id}</span><span class="s2"> - Score: </span><span class="si">{score}</span><span class="s2"> - </span><span class="si">{month}</span><span class="s2">/</span><span class="si">{day}</span><span class="s2">/</span><span class="si">{year}</span><span class="s2"> @ </span><span class="si">{hour}</span><span class="s2">:</span><span class="si">{minute}</span><span class="s2">&quot;</span>
+</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a>
+</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a>    <span class="c1"># Parse the input string using the template</span>
+</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a>    <span class="n">parsed_data</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">input_str</span><span class="p">)</span>
+</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a>
+</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>    <span class="c1"># Convert parsed fields to integers and process the year</span>
+</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>    <span class="n">month</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;month&quot;</span><span class="p">])</span>
+</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>    <span class="n">day</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;day&quot;</span><span class="p">])</span>
+</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>    <span class="n">year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">])</span>
+</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a>    <span class="n">hour</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;hour&quot;</span><span class="p">])</span>
+</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a>    <span class="n">minute</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;minute&quot;</span><span class="p">])</span>
+</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a>
+</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a>    <span class="c1"># Adjust two-digit year to four digits</span>
+</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a>    <span class="n">full_year</span> <span class="o">=</span> <span class="n">year</span> <span class="o">+</span> <span class="mi">2000</span> <span class="k">if</span> <span class="n">year</span> <span class="o">&lt;</span> <span class="mi">70</span> <span class="k">else</span> <span class="n">year</span> <span class="o">+</span> <span class="mi">1900</span>
+</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a>
+</span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a>    <span class="c1"># Create a datetime object and format the timestamp</span>
+</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a>    <span class="n">dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="n">full_year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">day</span><span class="p">,</span> <span class="n">hour</span><span class="p">,</span> <span class="n">minute</span><span class="p">)</span>
+</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a>    <span class="n">timestamp</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
+</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a>
+</span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a>    <span class="n">ret</span> <span class="o">=</span> <span class="n">VimGolfParsedPublicSolutionHeader</span><span class="p">(</span>
+</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a>        <span class="n">rank</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;rank&quot;</span><span class="p">],</span>
+</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a>        <span class="n">score</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">],</span>
+</span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a>        <span class="n">user_name</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;user_name&quot;</span><span class="p">],</span>
+</span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a>        <span class="n">user_id</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">],</span>
+</span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a>        <span class="n">date</span><span class="o">=</span><span class="n">timestamp</span><span class="p">,</span>
+</span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a>    <span class="p">)</span>
+</span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a>    <span class="k">return</span> <span class="n">ret</span>
 </span></pre></div>
 
 
@@ -398,12 +413,15 @@
 
             <div class="docstring"><p>Represents a custom VimGolf challenge</p>
 
-<p>Attributes:
-    input: The input of the challenge (required)
-    output: The output of the challenge (required)
-    name: The name of the challenge (optional)
-    description: The description of the challenge (optional)
-    solution: The VimGolf solution (optional)</p>
+<h6 id="attributes">Attributes:</h6>
+
+<ul>
+<li><strong>input:</strong>  The input of the challenge (required)</li>
+<li><strong>output:</strong>  The output of the challenge (required)</li>
+<li><strong>name:</strong>  The name of the challenge (optional)</li>
+<li><strong>description:</strong>  The description of the challenge (optional)</li>
+<li><strong>solution:</strong>  The VimGolf solution (optional)</li>
+</ul>
 </div>
 
 
@@ -505,10 +523,13 @@
 
             <div class="docstring"><p>Represents a single result of VimGolf challenge environment,</p>
 
-<p>Attributes:
-    correct: The challenge is solved or not
-    keys: VimGolf solution keys (converted from raw representation)
-    score: Keystrokes count (the lower the better)</p>
+<h6 id="attributes">Attributes:</h6>
+
+<ul>
+<li><strong>correct:</strong>  The challenge is solved or not</li>
+<li><strong>keys:</strong>  VimGolf solution keys (converted from raw representation)</li>
+<li><strong>score:</strong>  Keystrokes count (the lower the better)</li>
+</ul>
 </div>
 
 
@@ -592,12 +613,15 @@
 
             <div class="docstring"><p>Represents the header of a VimGolf public solution entry.</p>
 
-<p>Attributes:
-    rank: The rank of the solution (provided as a string in the reference).
-    score: The score of the solution (provided as a string in the reference).
-    user_name: The name of the user who submitted the solution.
-    user_id: The ID of the user who submitted the solution.
-    date: The date the solution was submitted.</p>
+<h6 id="attributes">Attributes:</h6>
+
+<ul>
+<li><strong>rank:</strong>  The rank of the solution (provided as a string in the reference).</li>
+<li><strong>score:</strong>  The score of the solution (provided as a string in the reference).</li>
+<li><strong>user_name:</strong>  The name of the user who submitted the solution.</li>
+<li><strong>user_id:</strong>  The ID of the user who submitted the solution.</li>
+<li><strong>date:</strong>  The date the solution was submitted.</li>
+</ul>
 </div>
 
 
@@ -699,10 +723,13 @@
 
             <div class="docstring"><p>Represents a public solution entry in VimGolf.</p>
 
-<p>Attributes:
-    rank: The rank of the solution (provided as a string in the reference).
-    solution: The sequence of Vim keystrokes used in the solution.
-    header: Descriptive header containing user and challenge details.</p>
+<h6 id="attributes">Attributes:</h6>
+
+<ul>
+<li><strong>rank:</strong>  The rank of the solution (provided as a string in the reference).</li>
+<li><strong>solution:</strong>  The sequence of Vim keystrokes used in the solution.</li>
+<li><strong>header:</strong>  Descriptive header containing user and challenge details.</li>
+</ul>
 </div>
 
 
@@ -785,11 +812,14 @@
 
             <div class="docstring"><p>Represents metadata for a VimGolf challenge.</p>
 
-<p>Attributes:
-    href: URL path to the challenge.
-    title: Name/description of the challenge.
-    detail: Explanation of the challenge task.
-    challenge_hash: Unique identifier hash for the challenge.</p>
+<h6 id="attributes">Attributes:</h6>
+
+<ul>
+<li><strong>href:</strong>  URL path to the challenge.</li>
+<li><strong>title:</strong>  Name/description of the challenge.</li>
+<li><strong>detail:</strong>  Explanation of the challenge task.</li>
+<li><strong>challenge_hash:</strong>  Unique identifier hash for the challenge.</li>
+</ul>
 </div>
 
 
@@ -896,10 +926,13 @@
 
             <div class="docstring"><p>Represents a VimGolf challenge definition including input/output code and client information.</p>
 
-<p>Attributes:
-    input: Starting code and its type (nested model)
-    output: Expected solution code and its type (nested model)
-    client_version: Version of the client that created the challenge</p>
+<h6 id="attributes">Attributes:</h6>
+
+<ul>
+<li><strong>input:</strong>  Starting code and its type (nested model)</li>
+<li><strong>output:</strong>  Expected solution code and its type (nested model)</li>
+<li><strong>client_version:</strong>  Version of the client that created the challenge</li>
+</ul>
 </div>
 
 
@@ -978,9 +1011,12 @@
 
             <div class="docstring"><p>Nested model for input/output code definitions.</p>
 
-<p>Attributes:
-    data: The actual code content
-    type: Programming language identifier (e.g., 'rb' for Ruby)</p>
+<h6 id="attributes">Attributes:</h6>
+
+<ul>
+<li><strong>data:</strong>  The actual code content</li>
+<li><strong>type:</strong>  Programming language identifier (e.g., 'rb' for Ruby)</li>
+</ul>
 </div>
 
 
@@ -1064,14 +1100,35 @@
     </div>
     <a class="headerlink" href="#parse_json_file"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="parse_json_file-123"><a href="#parse_json_file-123"><span class="linenos">123</span></a><span class="k">def</span><span class="w"> </span><span class="nf">parse_json_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">BaseModel</span><span class="p">:</span>
-</span><span id="parse_json_file-124"><a href="#parse_json_file-124"><span class="linenos">124</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a JSON file into a specified Pydantic model&quot;&quot;&quot;</span>
-</span><span id="parse_json_file-125"><a href="#parse_json_file-125"><span class="linenos">125</span></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-</span><span id="parse_json_file-126"><a href="#parse_json_file-126"><span class="linenos">126</span></a>        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-</span><span id="parse_json_file-127"><a href="#parse_json_file-127"><span class="linenos">127</span></a>    <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">parse_obj</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span id="parse_json_file-124"><a href="#parse_json_file-124"><span class="linenos">124</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a JSON file into a specified Pydantic model</span>
+</span><span id="parse_json_file-125"><a href="#parse_json_file-125"><span class="linenos">125</span></a><span class="sd">    </span>
+</span><span id="parse_json_file-126"><a href="#parse_json_file-126"><span class="linenos">126</span></a><span class="sd">    Args:</span>
+</span><span id="parse_json_file-127"><a href="#parse_json_file-127"><span class="linenos">127</span></a><span class="sd">        file_path (Path): Path to the JSON file.</span>
+</span><span id="parse_json_file-128"><a href="#parse_json_file-128"><span class="linenos">128</span></a><span class="sd">        model (type[BaseModel]): Pydantic model to parse the JSON into.</span>
+</span><span id="parse_json_file-129"><a href="#parse_json_file-129"><span class="linenos">129</span></a><span class="sd">    </span>
+</span><span id="parse_json_file-130"><a href="#parse_json_file-130"><span class="linenos">130</span></a><span class="sd">    Returns:</span>
+</span><span id="parse_json_file-131"><a href="#parse_json_file-131"><span class="linenos">131</span></a><span class="sd">        BaseModel: Parsed model instance</span>
+</span><span id="parse_json_file-132"><a href="#parse_json_file-132"><span class="linenos">132</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="parse_json_file-133"><a href="#parse_json_file-133"><span class="linenos">133</span></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span><span id="parse_json_file-134"><a href="#parse_json_file-134"><span class="linenos">134</span></a>        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</span><span id="parse_json_file-135"><a href="#parse_json_file-135"><span class="linenos">135</span></a>    <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">parse_obj</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 </span></pre></div>
 
 
             <div class="docstring"><p>Parse a JSON file into a specified Pydantic model</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>file_path (Path):</strong>  Path to the JSON file.</li>
+<li><strong>model (type[BaseModel]):</strong>  Pydantic model to parse the JSON into.</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>BaseModel: Parsed model instance</p>
+</blockquote>
 </div>
 
 
@@ -1087,39 +1144,58 @@
 
     </div>
     <a class="headerlink" href="#parse_public_solution_header"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="parse_public_solution_header-130"><a href="#parse_public_solution_header-130"><span class="linenos">130</span></a><span class="k">def</span><span class="w"> </span><span class="nf">parse_public_solution_header</span><span class="p">(</span><span class="n">input_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VimGolfParsedPublicSolutionHeader</span><span class="p">:</span>
-</span><span id="parse_public_solution_header-131"><a href="#parse_public_solution_header-131"><span class="linenos">131</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse the public solution header string&quot;&quot;&quot;</span>
-</span><span id="parse_public_solution_header-132"><a href="#parse_public_solution_header-132"><span class="linenos">132</span></a>    <span class="n">template</span> <span class="o">=</span> <span class="s2">&quot;#</span><span class="si">{rank}</span><span class="s2"> </span><span class="si">{user_name}</span><span class="s2"> / @</span><span class="si">{user_id}</span><span class="s2"> - Score: </span><span class="si">{score}</span><span class="s2"> - </span><span class="si">{month}</span><span class="s2">/</span><span class="si">{day}</span><span class="s2">/</span><span class="si">{year}</span><span class="s2"> @ </span><span class="si">{hour}</span><span class="s2">:</span><span class="si">{minute}</span><span class="s2">&quot;</span>
-</span><span id="parse_public_solution_header-133"><a href="#parse_public_solution_header-133"><span class="linenos">133</span></a>
-</span><span id="parse_public_solution_header-134"><a href="#parse_public_solution_header-134"><span class="linenos">134</span></a>    <span class="c1"># Parse the input string using the template</span>
-</span><span id="parse_public_solution_header-135"><a href="#parse_public_solution_header-135"><span class="linenos">135</span></a>    <span class="n">parsed_data</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">input_str</span><span class="p">)</span>
-</span><span id="parse_public_solution_header-136"><a href="#parse_public_solution_header-136"><span class="linenos">136</span></a>
-</span><span id="parse_public_solution_header-137"><a href="#parse_public_solution_header-137"><span class="linenos">137</span></a>    <span class="c1"># Convert parsed fields to integers and process the year</span>
-</span><span id="parse_public_solution_header-138"><a href="#parse_public_solution_header-138"><span class="linenos">138</span></a>    <span class="n">month</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;month&quot;</span><span class="p">])</span>
-</span><span id="parse_public_solution_header-139"><a href="#parse_public_solution_header-139"><span class="linenos">139</span></a>    <span class="n">day</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;day&quot;</span><span class="p">])</span>
-</span><span id="parse_public_solution_header-140"><a href="#parse_public_solution_header-140"><span class="linenos">140</span></a>    <span class="n">year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">])</span>
-</span><span id="parse_public_solution_header-141"><a href="#parse_public_solution_header-141"><span class="linenos">141</span></a>    <span class="n">hour</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;hour&quot;</span><span class="p">])</span>
-</span><span id="parse_public_solution_header-142"><a href="#parse_public_solution_header-142"><span class="linenos">142</span></a>    <span class="n">minute</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;minute&quot;</span><span class="p">])</span>
-</span><span id="parse_public_solution_header-143"><a href="#parse_public_solution_header-143"><span class="linenos">143</span></a>
-</span><span id="parse_public_solution_header-144"><a href="#parse_public_solution_header-144"><span class="linenos">144</span></a>    <span class="c1"># Adjust two-digit year to four digits</span>
-</span><span id="parse_public_solution_header-145"><a href="#parse_public_solution_header-145"><span class="linenos">145</span></a>    <span class="n">full_year</span> <span class="o">=</span> <span class="n">year</span> <span class="o">+</span> <span class="mi">2000</span> <span class="k">if</span> <span class="n">year</span> <span class="o">&lt;</span> <span class="mi">70</span> <span class="k">else</span> <span class="n">year</span> <span class="o">+</span> <span class="mi">1900</span>
-</span><span id="parse_public_solution_header-146"><a href="#parse_public_solution_header-146"><span class="linenos">146</span></a>
-</span><span id="parse_public_solution_header-147"><a href="#parse_public_solution_header-147"><span class="linenos">147</span></a>    <span class="c1"># Create a datetime object and format the timestamp</span>
-</span><span id="parse_public_solution_header-148"><a href="#parse_public_solution_header-148"><span class="linenos">148</span></a>    <span class="n">dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="n">full_year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">day</span><span class="p">,</span> <span class="n">hour</span><span class="p">,</span> <span class="n">minute</span><span class="p">)</span>
-</span><span id="parse_public_solution_header-149"><a href="#parse_public_solution_header-149"><span class="linenos">149</span></a>    <span class="n">timestamp</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
-</span><span id="parse_public_solution_header-150"><a href="#parse_public_solution_header-150"><span class="linenos">150</span></a>
-</span><span id="parse_public_solution_header-151"><a href="#parse_public_solution_header-151"><span class="linenos">151</span></a>    <span class="n">ret</span> <span class="o">=</span> <span class="n">VimGolfParsedPublicSolutionHeader</span><span class="p">(</span>
-</span><span id="parse_public_solution_header-152"><a href="#parse_public_solution_header-152"><span class="linenos">152</span></a>        <span class="n">rank</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;rank&quot;</span><span class="p">],</span>
-</span><span id="parse_public_solution_header-153"><a href="#parse_public_solution_header-153"><span class="linenos">153</span></a>        <span class="n">score</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">],</span>
-</span><span id="parse_public_solution_header-154"><a href="#parse_public_solution_header-154"><span class="linenos">154</span></a>        <span class="n">user_name</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;user_name&quot;</span><span class="p">],</span>
-</span><span id="parse_public_solution_header-155"><a href="#parse_public_solution_header-155"><span class="linenos">155</span></a>        <span class="n">user_id</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">],</span>
-</span><span id="parse_public_solution_header-156"><a href="#parse_public_solution_header-156"><span class="linenos">156</span></a>        <span class="n">date</span><span class="o">=</span><span class="n">timestamp</span><span class="p">,</span>
-</span><span id="parse_public_solution_header-157"><a href="#parse_public_solution_header-157"><span class="linenos">157</span></a>    <span class="p">)</span>
-</span><span id="parse_public_solution_header-158"><a href="#parse_public_solution_header-158"><span class="linenos">158</span></a>    <span class="k">return</span> <span class="n">ret</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="parse_public_solution_header-138"><a href="#parse_public_solution_header-138"><span class="linenos">138</span></a><span class="k">def</span><span class="w"> </span><span class="nf">parse_public_solution_header</span><span class="p">(</span><span class="n">input_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VimGolfParsedPublicSolutionHeader</span><span class="p">:</span>
+</span><span id="parse_public_solution_header-139"><a href="#parse_public_solution_header-139"><span class="linenos">139</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse the public solution header string</span>
+</span><span id="parse_public_solution_header-140"><a href="#parse_public_solution_header-140"><span class="linenos">140</span></a><span class="sd">    </span>
+</span><span id="parse_public_solution_header-141"><a href="#parse_public_solution_header-141"><span class="linenos">141</span></a><span class="sd">    Args:</span>
+</span><span id="parse_public_solution_header-142"><a href="#parse_public_solution_header-142"><span class="linenos">142</span></a><span class="sd">        input_str (str): Public solution header string.</span>
+</span><span id="parse_public_solution_header-143"><a href="#parse_public_solution_header-143"><span class="linenos">143</span></a><span class="sd">    </span>
+</span><span id="parse_public_solution_header-144"><a href="#parse_public_solution_header-144"><span class="linenos">144</span></a><span class="sd">    Returns:</span>
+</span><span id="parse_public_solution_header-145"><a href="#parse_public_solution_header-145"><span class="linenos">145</span></a><span class="sd">        VimGolfParsedPublicSolutionHeader</span>
+</span><span id="parse_public_solution_header-146"><a href="#parse_public_solution_header-146"><span class="linenos">146</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="parse_public_solution_header-147"><a href="#parse_public_solution_header-147"><span class="linenos">147</span></a>    <span class="n">template</span> <span class="o">=</span> <span class="s2">&quot;#</span><span class="si">{rank}</span><span class="s2"> </span><span class="si">{user_name}</span><span class="s2"> / @</span><span class="si">{user_id}</span><span class="s2"> - Score: </span><span class="si">{score}</span><span class="s2"> - </span><span class="si">{month}</span><span class="s2">/</span><span class="si">{day}</span><span class="s2">/</span><span class="si">{year}</span><span class="s2"> @ </span><span class="si">{hour}</span><span class="s2">:</span><span class="si">{minute}</span><span class="s2">&quot;</span>
+</span><span id="parse_public_solution_header-148"><a href="#parse_public_solution_header-148"><span class="linenos">148</span></a>
+</span><span id="parse_public_solution_header-149"><a href="#parse_public_solution_header-149"><span class="linenos">149</span></a>    <span class="c1"># Parse the input string using the template</span>
+</span><span id="parse_public_solution_header-150"><a href="#parse_public_solution_header-150"><span class="linenos">150</span></a>    <span class="n">parsed_data</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">input_str</span><span class="p">)</span>
+</span><span id="parse_public_solution_header-151"><a href="#parse_public_solution_header-151"><span class="linenos">151</span></a>
+</span><span id="parse_public_solution_header-152"><a href="#parse_public_solution_header-152"><span class="linenos">152</span></a>    <span class="c1"># Convert parsed fields to integers and process the year</span>
+</span><span id="parse_public_solution_header-153"><a href="#parse_public_solution_header-153"><span class="linenos">153</span></a>    <span class="n">month</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;month&quot;</span><span class="p">])</span>
+</span><span id="parse_public_solution_header-154"><a href="#parse_public_solution_header-154"><span class="linenos">154</span></a>    <span class="n">day</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;day&quot;</span><span class="p">])</span>
+</span><span id="parse_public_solution_header-155"><a href="#parse_public_solution_header-155"><span class="linenos">155</span></a>    <span class="n">year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">])</span>
+</span><span id="parse_public_solution_header-156"><a href="#parse_public_solution_header-156"><span class="linenos">156</span></a>    <span class="n">hour</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;hour&quot;</span><span class="p">])</span>
+</span><span id="parse_public_solution_header-157"><a href="#parse_public_solution_header-157"><span class="linenos">157</span></a>    <span class="n">minute</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;minute&quot;</span><span class="p">])</span>
+</span><span id="parse_public_solution_header-158"><a href="#parse_public_solution_header-158"><span class="linenos">158</span></a>
+</span><span id="parse_public_solution_header-159"><a href="#parse_public_solution_header-159"><span class="linenos">159</span></a>    <span class="c1"># Adjust two-digit year to four digits</span>
+</span><span id="parse_public_solution_header-160"><a href="#parse_public_solution_header-160"><span class="linenos">160</span></a>    <span class="n">full_year</span> <span class="o">=</span> <span class="n">year</span> <span class="o">+</span> <span class="mi">2000</span> <span class="k">if</span> <span class="n">year</span> <span class="o">&lt;</span> <span class="mi">70</span> <span class="k">else</span> <span class="n">year</span> <span class="o">+</span> <span class="mi">1900</span>
+</span><span id="parse_public_solution_header-161"><a href="#parse_public_solution_header-161"><span class="linenos">161</span></a>
+</span><span id="parse_public_solution_header-162"><a href="#parse_public_solution_header-162"><span class="linenos">162</span></a>    <span class="c1"># Create a datetime object and format the timestamp</span>
+</span><span id="parse_public_solution_header-163"><a href="#parse_public_solution_header-163"><span class="linenos">163</span></a>    <span class="n">dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="n">full_year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">day</span><span class="p">,</span> <span class="n">hour</span><span class="p">,</span> <span class="n">minute</span><span class="p">)</span>
+</span><span id="parse_public_solution_header-164"><a href="#parse_public_solution_header-164"><span class="linenos">164</span></a>    <span class="n">timestamp</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
+</span><span id="parse_public_solution_header-165"><a href="#parse_public_solution_header-165"><span class="linenos">165</span></a>
+</span><span id="parse_public_solution_header-166"><a href="#parse_public_solution_header-166"><span class="linenos">166</span></a>    <span class="n">ret</span> <span class="o">=</span> <span class="n">VimGolfParsedPublicSolutionHeader</span><span class="p">(</span>
+</span><span id="parse_public_solution_header-167"><a href="#parse_public_solution_header-167"><span class="linenos">167</span></a>        <span class="n">rank</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;rank&quot;</span><span class="p">],</span>
+</span><span id="parse_public_solution_header-168"><a href="#parse_public_solution_header-168"><span class="linenos">168</span></a>        <span class="n">score</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">],</span>
+</span><span id="parse_public_solution_header-169"><a href="#parse_public_solution_header-169"><span class="linenos">169</span></a>        <span class="n">user_name</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;user_name&quot;</span><span class="p">],</span>
+</span><span id="parse_public_solution_header-170"><a href="#parse_public_solution_header-170"><span class="linenos">170</span></a>        <span class="n">user_id</span><span class="o">=</span><span class="n">parsed_data</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">],</span>
+</span><span id="parse_public_solution_header-171"><a href="#parse_public_solution_header-171"><span class="linenos">171</span></a>        <span class="n">date</span><span class="o">=</span><span class="n">timestamp</span><span class="p">,</span>
+</span><span id="parse_public_solution_header-172"><a href="#parse_public_solution_header-172"><span class="linenos">172</span></a>    <span class="p">)</span>
+</span><span id="parse_public_solution_header-173"><a href="#parse_public_solution_header-173"><span class="linenos">173</span></a>    <span class="k">return</span> <span class="n">ret</span>
 </span></pre></div>
 
 
             <div class="docstring"><p>Parse the public solution header string</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>input_str (str):</strong>  Public solution header string.</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>VimGolfParsedPublicSolutionHeader</p>
+</blockquote>
 </div>
 
 

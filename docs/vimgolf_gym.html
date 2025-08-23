@@ -195,16 +195,25 @@ vimgolf_gym    </h1>
 <li><code>vimgolf-custom</code>: A custom environment. The <code>custom_challenge</code> parameter will be used.</li>
 </ul>
 
-<p>Args:
-    env_name (str): The name of the environment to create.
-    use_docker (bool, optional): Whether to use a dockerized executor. Defaults to False.
-    custom_challenge (Optional[VimGolfCustomChallenge], optional): The custom challenge to use. Defaults to None.</p>
+<h6 id="arguments">Arguments:</h6>
 
-<p>Raises:
-    NotImplementedError: If the environment name is not recognized.</p>
+<ul>
+<li><strong>env_name (str):</strong>  The name of the environment to create.</li>
+<li><strong>use_docker (bool, optional):</strong>  Whether to use a dockerized executor. Defaults to False.</li>
+<li><strong>custom_challenge (Optional[VimGolfCustomChallenge], optional):</strong>  The custom challenge to use. Defaults to None.</li>
+</ul>
 
-<p>Returns:
-    VimGolfEnv: The created environment</p>
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>NotImplementedError:</strong>  If the environment name is not recognized.</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>VimGolfEnv: The created environment</p>
+</blockquote>
 </div>
 
 
@@ -244,8 +253,11 @@ vimgolf_gym    </h1>
 
 <p>This function will download the local dataset if it does not exist yet.</p>
 
-<p>Returns:
-    list[str]: a list of all challenge ids in the local dataset.</p>
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>list[str]: a list of all challenge ids in the local dataset.</p>
+</blockquote>
 </div>
 
 
@@ -294,14 +306,23 @@ vimgolf_gym    </h1>
 <p>Given a challenge_id, find the corresponding JSON file in the dataset
 and parse it into a VimGolfChallengeDefinition object.</p>
 
-<p>Args:
-    challenge_id (str): Unique identifier for the challenge.</p>
+<h6 id="arguments">Arguments:</h6>
 
-<p>Returns:
-    VimGolfChallengeDefinition: Parsed challenge definition.</p>
+<ul>
+<li><strong>challenge_id (str):</strong>  Unique identifier for the challenge.</li>
+</ul>
 
-<p>Raises:
-    AssertionError: If the challenge file does not exist.</p>
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>VimGolfChallengeDefinition: Parsed challenge definition.</p>
+</blockquote>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>AssertionError:</strong>  If the challenge file does not exist.</li>
+</ul>
 </div>
 
 
@@ -350,14 +371,23 @@ and parse it into a VimGolfChallengeDefinition object.</p>
 <p>Given a challenge_id, find the corresponding JSON file in the dataset
 and parse it into a VimGolfChallengeMetadata object.</p>
 
-<p>Args:
-    challenge_id (str): Unique identifier for the challenge.</p>
+<h6 id="arguments">Arguments:</h6>
 
-<p>Returns:
-    VimGolfChallengeMetadata: Parsed challenge metadata.</p>
+<ul>
+<li><strong>challenge_id (str):</strong>  Unique identifier for the challenge.</li>
+</ul>
 
-<p>Raises:
-    AssertionError: If the metadata file does not exist.</p>
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>VimGolfChallengeMetadata: Parsed challenge metadata.</p>
+</blockquote>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>AssertionError:</strong>  If the metadata file does not exist.</li>
+</ul>
 </div>
 
 
@@ -409,14 +439,23 @@ and parse it into a VimGolfChallengeMetadata object.</p>
 <p>Given a challenge_id, find the corresponding JSON file in the dataset
 and parse it into a VimGolfPublicSolution object.</p>
 
-<p>Args:
-    challenge_id (str): Unique identifier for the challenge.</p>
+<h6 id="arguments">Arguments:</h6>
 
-<p>Returns:
-    VimGolfPublicSolution: Parsed worst solution.</p>
+<ul>
+<li><strong>challenge_id (str):</strong>  Unique identifier for the challenge.</li>
+</ul>
 
-<p>Raises:
-    AssertionError: If the worst solution file does not exist.</p>
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>VimGolfPublicSolution: Parsed worst solution.</p>
+</blockquote>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>AssertionError:</strong>  If the worst solution file does not exist.</li>
+</ul>
 </div>
 
 
@@ -460,14 +499,23 @@ and parse it into a VimGolfPublicSolution object.</p>
 <p>Given a challenge_id, find the corresponding worst solution file in the dataset
 and parse its header string into a VimGolfParsedPublicSolutionHeader object.</p>
 
-<p>Args:
-    challenge_id (str): Unique identifier for the challenge.</p>
+<h6 id="arguments">Arguments:</h6>
 
-<p>Returns:
-    VimGolfParsedPublicSolutionHeader: Parsed header string.</p>
+<ul>
+<li><strong>challenge_id (str):</strong>  Unique identifier for the challenge.</li>
+</ul>
 
-<p>Raises:
-    AssertionError: If the worst solution file does not exist.</p>
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>VimGolfParsedPublicSolutionHeader: Parsed header string.</p>
+</blockquote>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>AssertionError:</strong>  If the worst solution file does not exist.</li>
+</ul>
 </div>
 
 

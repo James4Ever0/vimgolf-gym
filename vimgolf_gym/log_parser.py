@@ -1,15 +1,5 @@
 """
 Log parser for VimGolf executor
-
----
-
-We keep track of the log file attributes.
-
-Specifically, the file size.
-
-If the file size changes, we will reparse the log.
-
-In more advanced usage, we could seek to given point and parse from there, avoiding reparsing from the beginning.
 """
 
 import copy
@@ -27,6 +17,10 @@ class AbstractLogParser(ABC):
     def feed_line(self, line: str): ...
 
 
+# We keep track of the log file attributes.
+# Specifically, the file size.
+# If the file size changes, we will reparse the log.
+# In more advanced usage, we could seek to given point and parse from there, avoiding reparsing from the beginning.
 class LogWatcher:
     def __init__(self, log_file: str, parser_class: Type[AbstractLogParser]):
         """
@@ -66,11 +60,9 @@ class LogWatcher:
         ``simple`` strategy, but it does not handle the case where the log
         file is truncated.
 
-        Parameters
-        ----------
-        style : str, optional
-            The update strategy to use. Must be one of ``advanced``, ``simple``,
-            or ``naive``. Defaults to ``advanced``.
+        Args:
+            style (str, optional): The update strategy to use. Must be one of 
+                ``advanced``, ``simple``, or ``naive``. Defaults to ``advanced``.
         """
         if style == "advanced":
             self.advanced_update()
@@ -160,13 +152,13 @@ class VimGolfLogWatcher(LogWatcher):
         The VimGolfLogWatcher is a LogWatcher that is specialized for
         reading VimGolf logs.
 
-        Parameters
-        ----------
-        log_file : str
-            The path to the log file.
-        update_style : str, optional
-            The update strategy to use. Must be one of ``advanced``,
-            ``simple``, or ``naive``. Defaults to ``advanced``.
+        Args:
+            log_file (str): The path to the log file.
+            update_style (str, optional): The update strategy to use. Must be one of 
+                ``advanced``, ``simple``, or ``naive``. Defaults to ``advanced``.
+
+        Returns:
+            [return_type]: [description of return value]
         """
         super().__init__(log_file=log_file, parser_class=VimGolfLogParser)
         self.parser: VimGolfLogParser
@@ -193,10 +185,8 @@ class VimGolfLogWatcher(LogWatcher):
         successfully. It updates the log watcher if necessary before
         checking the success status.
 
-        Returns
-        -------
-        bool
-            True if the challenge has been solved successfully, False otherwise.
+        Returns:
+            bool: True if the challenge has been solved successfully, False otherwise.
         """
         self.default_update()
         return self.parser.success
@@ -208,11 +198,9 @@ class VimGolfLogWatcher(LogWatcher):
         This method returns the best success result in the log watcher,
         updating the log watcher if necessary before returning the result.
 
-        Returns
-        -------
-        VimGolfEnvResult
-            The best success result in the log watcher, or None if there is no
-            success result.
+        Returns:
+            VimGolfEnvResult: The best success result in the log watcher, or None if 
+            there is no success result.
         """
         self.default_update()
         return self.parser.get_best_success_result()
@@ -224,11 +212,9 @@ class VimGolfLogWatcher(LogWatcher):
         This method returns the last success result in the log watcher,
         updating the log watcher if necessary before returning the result.
 
-        Returns
-        -------
-        VimGolfEnvResult
-            The last success result in the log watcher, or None if there is no
-            success result.
+        Returns:
+            VimGolfEnvResult: The last success result in the log watcher, or None if 
+            there is no success result.
         """
         self.default_update()
         return self.parser.get_last_success_result()
@@ -241,10 +227,8 @@ class VimGolfLogWatcher(LogWatcher):
         This property returns the results of the vimgolf challenge environment,
         updating the log watcher if necessary before returning the results.
 
-        Returns
-        -------
-        list[VimGolfEnvResult]
-            The results of the vimgolf challenge environment, or an empty list if
+        Returns:
+            list[VimGolfEnvResult]: The results of the vimgolf challenge environment, or an empty list if
             there are no results.
         """
         self.default_update()
@@ -259,10 +243,8 @@ class VimGolfLogWatcher(LogWatcher):
         environment, updating the log watcher if necessary before returning the
         results.
 
-        Returns
-        -------
-        list[VimGolfEnvResult]
-            The successful results of the vimgolf challenge environment, or an
+        Returns:
+            list[VimGolfEnvResult]: The successful results of the vimgolf challenge environment, or an
             empty list if there are no successful results.
         """
         self.default_update()
@@ -292,10 +274,8 @@ class VimGolfLogParser(AbstractLogParser):
         If the line is not a valid JSON object, or if the JSON object does not
         have the correct structure, the line will be ignored.
 
-        Parameters
-        ----------
-        line : str
-            The line of text to feed to the parser.
+        Args:
+            line (str): The line of text to feed to the parser.
         """
         try:
             data = json.loads(line.strip())
@@ -317,10 +297,8 @@ class VimGolfLogParser(AbstractLogParser):
         environment, which are the results in the results list where the
         correct attribute is True.
 
-        Returns
-        -------
-        list[VimGolfEnvResult]
-            The successful results of the vimgolf challenge environment, or an
+        Returns:
+            list[VimGolfEnvResult]: The successful results of the vimgolf challenge environment, or an
             empty list if there are no successful results.
         """
         return [it for it in self.results if it.correct]
@@ -334,10 +312,8 @@ class VimGolfLogParser(AbstractLogParser):
         successfully. It returns True if there are any successful results in
         the results list, and False otherwise.
 
-        Returns
-        -------
-        bool
-            True if the challenge has been solved successfully, False otherwise.
+        Returns:
+            bool: True if the challenge has been solved successfully, False otherwise.
         """
         return len(self.success_results) != 0
 
@@ -348,10 +324,8 @@ class VimGolfLogParser(AbstractLogParser):
         This method returns the last success result in the log watcher,
         which is the last result in the success_results list.
 
-        Returns
-        -------
-        VimGolfEnvResult
-            The last success result in the log watcher, or None if there is no
+        Returns:
+            VimGolfEnvResult: The last success result in the log watcher, or None if there is no
             success result.
         """
         success_results = self.success_results
