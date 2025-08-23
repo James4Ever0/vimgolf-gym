@@ -1,0 +1,1 @@
+docker build -f Dockerfile --progress plain -t cybergod_vimgolf_gym .

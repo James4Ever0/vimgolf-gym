@@ -9,30 +9,76 @@
 
 OpenAI gym like environment and benchmark for Vimgolf.
 
+## Demo
+
+![vimgolf-test-success](https://github.com/user-attachments/assets/011c21d7-5b4b-4836-ac14-e4b8126c3ab4)
+
+<details>
+
+<summary>Code:</summary>
+
+```python
+
+```
+
+</details>
+
+
+![vimgolf-local-4d1a1c36567bac34a9000002-fail](https://github.com/user-attachments/assets/c6f4c2ba-1506-42c1-8d47-28816d338e94)
+
+
+<details>
+
+<summary>Code:</summary>
+
+```python
+
+```
+
+</details>
+
+
 ## Installation
 
 ```bash
 pip install vimgolf-gym
 ```
 
-## Demo
+If you do have vim installed locally, you can use this docker image:
 
-![vimgolf-test-success](https://github.com/user-attachments/assets/011c21d7-5b4b-4836-ac14-e4b8126c3ab4)
+```bash
+# build the image
+bash build_docker_image.sh
+docker tag cybergod_vimgolf_gym agile4im/cybergod_vimgolf_gym
 
-![vimgolf-local-4d1a1c36567bac34a9000002-fail](https://github.com/user-attachments/assets/c6f4c2ba-1506-42c1-8d47-28816d338e94)
-
+# or pull the image
+docker pull agile4im/cybergod_vimgolf_gym
+```
 
 ## Usage
 
 ```python
 import vimgolf_gym
 
+# if you have vim installed locally
 env = vimgolf_gym.make("vimgolf-test")
+
+# or run the executor with docker
+env = vimgolf_gym.make("vimgolf-test", use_docker=True)
+
+# take an action
 env.act("hello world\n")
-img = env.screenshot() # output a PIL image
-env.render() # preview screenshot
+
+# take a screenshot and output a PIL image
+img = env.screenshot()
+
+# preview screenshot
+env.render()
+
+# reset the environment
 env.reset()
 
+# check if the environment has at least one success result
 if env.success:
-   env.get_last_success_result
+   env.get_last_success_result()
 ```

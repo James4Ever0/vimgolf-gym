@@ -3,6 +3,8 @@
 
 # TODO: implement a gradual scoring system by comparing the buffer with the target output, extracting the vim edit buffer in the middle of execution
 
+# TODO: dockerize the executor part, push the image, offer an option or environment variable to use dockerized executor
+
 import atexit
 import os
 import pathlib
@@ -33,12 +35,20 @@ CYBERGOD_VIMGOLF_GYM_DATASET_DOWNLOADED = os.path.join(
 os.makedirs(CYBERGOD_VIMGOLF_DATASET_BASEDIR, exist_ok=True)
 
 
+class DatasetInitError(Exception):
+    pass
+
+
 def assert_challenge_id_length(challenge_id: str):
     """Assert the challenge_id length to be 24"""
     assert len(challenge_id) == 24
 
 
-def make(env_name: str):
+def make(env_name: str, use_docker: bool = False):
+    if use_docker:
+        os.environ["VIMGOLF_GYM_USE_DOCKER"] = "1"
+    else:
+        os.environ["VIMGOLF_GYM_USE_DOCKER"] = "0"
     if env_name == "vimgolf-test":
         env = make_test()
     elif env_name.startswith("vimgolf-local-"):
@@ -69,12 +79,12 @@ def make_env_with_text(input_text: str, output_text: str):
         f.write(input_text)
     with open(output_file, "w") as f:
         f.write(output_text)
-    env = VimGolfEnv(input_file, output_file)
-    return env
+    return make_offline(input_file, output_file)
 
 
 def make_offline(input_file: str, output_file: str):
-    return VimGolfEnv(input_file, output_file)
+    use_docker = os.environ.get("VIMGOLF_GYM_USE_DOCKER", None) == "1"
+    return VimGolfEnv(input_file, output_file, use_docker=use_docker)
 
 
 def make_online(challenge_id: str):
@@ -83,8 +93,11 @@ def make_online(challenge_id: str):
     challenge = dataclasses.VimGolfChallengeDefinition.parse_raw(challenge_data)
     return make_env_with_challenge(challenge)
 
-def make_env_with_challenge(challenge:dataclasses.VimGolfChallengeDefinition):
-    return make_env_with_text(input_text=challenge.input.data, output_text=challenge.output.data)
+
+def make_env_with_challenge(challenge: dataclasses.VimGolfChallengeDefinition):
+    return make_env_with_text(
+        input_text=challenge.input.data, output_text=challenge.output.data
+    )
 
 
 def init_cybergod_vimgolf_dataset():
@@ -155,16 +168,35 @@ def get_local_challenge_definition(challenge_id: str):
 
 
 def download_cybergod_vimgolf_dataset():
+    print("Initializing CyberGod VimGolf dataset at:", CYBERGOD_VIMGOLF_DATASET_BASEDIR)
     try:
-        zip_download_url = "https://www.kaggle.com/api/v1/datasets/download/jessysisca/vimgolf-challenges-and-solutions"
-
+        # TODO: add huggingface, hf-mirror.com, github releases and github mirror links
+        download_urls = [
+            "https://www.kaggle.com/api/v1/datasets/download/jessysisca/vimgolf-challenges-and-solutions",
+            "https://hf-mirror.com/datasets/James4Ever0/vimgolf_challenges_and_solutions/resolve/main/challenges.zip?download=true",
+            "https://huggingface.co/datasets/James4Ever0/vimgolf_challenges_and_solutions/resolve/main/challenges.zip?download=true",
+            "https://github.com/James4Ever0/vimgolf-gym/releases/download/dataset-release/challenges.zip",
+            "https://bgithub.xyz/James4Ever0/vimgolf-gym/releases/download/dataset-release/challenges.zip",
+        ]
         with tempfile.TemporaryDirectory() as tempdir:
             zip_file_path = os.path.join(
                 tempdir, "vimgolf-challenges-and-solutions.zip"
             )
-            print("Downloading:", zip_download_url)
             with open(zip_file_path, "wb") as f:
-                f.write(requests.get(zip_download_url, allow_redirects=True).content)
+                content = None
+                for url in download_urls:
+                    try:
+                        print("Downloading:", url)
+                        content = requests.get(
+                            url, allow_redirects=True, timeout=10
+                        ).content
+                        break
+                    except requests.Timeout:
+                        print("Timeout, trying next URL")
+                if content:
+                    f.write(content)
+                else:
+                    raise DatasetInitError("Failed to download the dataset")
             with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
                 # extract to CYBERGOD_VIMGOLF_GYM_DATASET_DIR
                 zip_ref.extractall(CYBERGOD_VIMGOLF_DATASET_BASEDIR)
@@ -178,7 +210,12 @@ def download_cybergod_vimgolf_dataset():
 
 class VimGolfEnv:
     def __init__(
-        self, input_file: str, output_file: str, width: int = 80, height: int = 24
+        self,
+        input_file: str,
+        output_file: str,
+        width: int = 80,
+        height: int = 24,
+        use_docker: bool = False,
     ):
         """Initialize the environment with the given input and output files.
 
@@ -186,25 +223,56 @@ class VimGolfEnv:
         :param output_file: the output file path
         :param width: the width of the terminal
         :param height: the height of the terminal
+        :param use_docker: whether use dockerized executor or local (requiring vim installed)
         """
+        self.use_docker = use_docker
         self.input_file = input_file
         self.output_file = output_file
+        assert os.path.isfile(self.input_file), f"Input file {self.input_file} does not exist."
+        assert os.path.isfile(self.output_file), f"Output file {self.output_file} does not exist."
         # TODO: run a modified version of vimgolf local python script writing progress to a jsonl file, which embeds in this script, for easy state inspection and data collection (we can create a temporary directory for cleanup)
         self.log_directory = tempfile.TemporaryDirectory()
 
         self.log_file = os.path.join(self.log_directory.name, "vimgolf.log")
 
-        self.command = [
-            sys.executable,
-            "-m",
-            "vimgolf_gym.vimgolf",
-            "--input_file",
-            self.input_file,
-            "--output_file",
-            self.output_file,
-            "--log_file",
-            self.log_file,
-        ]
+        if self.use_docker:
+            mountpoint = "/vimgolf_gym_workdir"
+            docker_output_file = os.path.join(mountpoint, "out")
+            docker_input_file = os.path.join(mountpoint, "in")
+            shutil.copy(self.input_file, os.path.join(self.log_directory.name, "in"))
+            shutil.copy(self.output_file, os.path.join(self.log_directory.name, "out"))
+            docker_log_file = os.path.join(mountpoint, "vimgolf.log")
+            self.command = [
+                "docker",
+                "run",
+                "--rm",
+                "-it",
+                "-v",
+                "%s:%s" % (self.log_directory.name, mountpoint),
+                "--entrypoint",
+                "python3",
+                "agile4im/cybergod_vimgolf_gym",
+                "-m",
+                "vimgolf_gym.vimgolf",
+                "--input_file",
+                docker_input_file,
+                "--output_file",
+                docker_output_file,
+                "--log_file",
+                docker_log_file,
+            ]
+        else:
+            self.command = [
+                sys.executable,
+                "-m",
+                "vimgolf_gym.vimgolf",
+                "--input_file",
+                self.input_file,
+                "--output_file",
+                self.output_file,
+                "--log_file",
+                self.log_file,
+            ]
 
         self.width = width
         self.height = height
@@ -245,7 +313,8 @@ class VimGolfEnv:
         self.executor = terminal_executor.TerminalExecutor(
             command=self.command, width=self.width, height=self.height
         )
-        self.log_watcher = log_parser.VimGolfLogWatcher(self.log_file)
+        if not hasattr(self, "log_watcher"):
+            self.log_watcher = log_parser.VimGolfLogWatcher(self.log_file)
         # shall we wait the executor be ready
         # we wait for the 'play(...)' indicator to appear in the log file.
         while True:
