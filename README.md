@@ -271,7 +271,7 @@ header: vimgolf_gym.dataclasses.VimGolfParsedPublicSolutionHeader = vimgolf_gym.
 
 If you want to obtain online challenge ids, you have a few options:
 
-1. Visit the [Vimgolf website](https://vimgolf.com) and look at the challenge ids.
+1. Visit the [Vimgolf website](https://vimgolf.com) and look for the challenge ids.
 2. Use `vimgolf` command
    - Install: `pip3 install vimgolf`
    - Run: `vimgolf list`
