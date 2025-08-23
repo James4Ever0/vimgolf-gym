@@ -43,6 +43,16 @@ _CYBERGOD_VIMGOLF_GYM_DATASET_DOWNLOADED = os.path.join(
 
 os.makedirs(_CYBERGOD_VIMGOLF_DATASET_BASEDIR, exist_ok=True)
 
+__all__ = [
+    "make",
+    "list_local_challenge_ids",
+    "get_local_challenge_definition",
+    "get_local_challenge_metadata",
+    "get_local_challenge_worst_solution",
+    "get_local_challenge_worst_solution_header",
+    "VimGolfEnv",
+]
+
 
 class DatasetInitError(Exception):
     pass
@@ -57,6 +67,7 @@ def make(
     env_name: str,
     custom_challenge: typing.Optional[dataclasses.VimGolfCustomChallenge] = None,
     use_docker: bool = False,
+    log_buffer: bool = False,
 ) -> "VimGolfEnv":
     """
     Create a VimGolf environment.
@@ -70,6 +81,7 @@ def make(
     Args:
         env_name (str): The name of the environment to create.
         use_docker (bool, optional): Whether to use a dockerized executor. Defaults to False.
+        log_buffer (bool, optional): Whether to log the editor buffer or not. Defaults to False.
         custom_challenge (Optional[VimGolfCustomChallenge], optional): The custom challenge to use. Defaults to None.
 
     Raises:
@@ -82,6 +94,12 @@ def make(
         os.environ["VIMGOLF_GYM_USE_DOCKER"] = "1"
     else:
         os.environ["VIMGOLF_GYM_USE_DOCKER"] = "0"
+
+    if log_buffer:
+        os.environ["VIMGOLF_GYM_LOG_BUFFER"] = "1"
+    else:
+        os.environ["VIMGOLF_GYM_LOG_BUFFER"] = "0"
+
     if env_name == "vimgolf-test":
         env = make_test()
     elif env_name == "vimgolf-custom":
@@ -153,7 +171,13 @@ def make_offline(input_file: str, output_file: str) -> "VimGolfEnv":
         VimGolfEnv: An environment for the given challenge.
     """
     use_docker = os.environ.get("VIMGOLF_GYM_USE_DOCKER", None) == "1"
-    return VimGolfEnv(input_file, output_file, use_docker=use_docker)
+    log_buffer = os.environ.get("VIMGOLF_GYM_LOG_BUFFER", None) == "1"
+    return VimGolfEnv(
+        input_file=input_file,
+        output_file=output_file,
+        use_docker=use_docker,
+        log_buffer=log_buffer,
+    )
 
 
 def make_online(challenge_id: str) -> "VimGolfEnv":
@@ -416,6 +440,7 @@ class VimGolfEnv:
         width: int = 80,
         height: int = 24,
         use_docker: bool = False,
+        log_buffer: bool = False,
     ):
         """Initialize the environment with the given input and output files.
 
@@ -425,6 +450,7 @@ class VimGolfEnv:
             width (int): the width of the terminal
             height (int): the height of the terminal
             use_docker (bool): whether use dockerized executor or local (requiring vim installed)
+            log_buffer (bool): whether to log the editor buffer or not
         """
 
         self.use_docker = use_docker
@@ -435,6 +461,9 @@ class VimGolfEnv:
 
         self.output_file = output_file
         """the output file path"""
+
+        self.log_buffer = log_buffer
+        """whether to log the editor buffer or not"""
 
         assert os.path.isfile(
             self.input_file
@@ -503,6 +532,14 @@ class VimGolfEnv:
         self.log_watcher: log_parser.VimGolfLogWatcher
         """log watcher for tracking vimgolf log output"""
         atexit.register(self.log_directory.cleanup)
+
+    @property
+    def buffer(self) -> typing.Optional[str]:
+        """The editor buffer"""
+        if not self.log_buffer:
+            return None
+        else:
+            raise NotImplementedError("Editor buffer retrieval not implemented")
 
     def act(self, action: str):
         """Take an action
