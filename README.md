@@ -260,7 +260,7 @@ metadata: vimgolf_gym.dataclasses.VimGolfChallengeMetadata = vimgolf_gym.get_loc
 
 # get the worst solution
 # VimGolfPublicSolution: (rank: str, solution: str, header: str)
-solution: vimgolf_gym.dataclasses. = vimgolf_gym.get_local_challenge_worst_solution(challenge_id)
+solution: vimgolf_gym.dataclasses.VimGolfPublicSolution = vimgolf_gym.get_local_challenge_worst_solution(challenge_id)
 
 # get the worst solution header
 # VimGolfParsedPublicSolutionHeader: (rank: str, score: str, user_name: str, user_id: str, data: datetime)
