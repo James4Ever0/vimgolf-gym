@@ -219,7 +219,7 @@ env.reset()
 
 # check if the environment has at least one success result
 if env.success:
-   # VimGolfEnvResult: (correct:bool, keys:str, score:int)
+   # VimGolfEnvResult: (correct: bool, keys: str, score: int)
    result: vimgolf_gym.dataclasses.VimGolfEnvResult = env.get_last_success_result()
 ```
 
@@ -237,12 +237,12 @@ challenge_id = "4d1a1c36567bac34a9000002"
 local_challenge_ids: list[str] = vimgolf_gym.list_local_challenge_ids()
 
 # get the challenge definition
-# VimGolfChallengeDefinition: (input: InputOutputModel, output: InputOutputModel, client_version:str)
-# InputOutputModel: (data:str, type:str)
+# VimGolfChallengeDefinition: (input: InputOutputModel, output: InputOutputModel, client_version: str)
+# InputOutputModel: (data: str, type: str)
 challenge: vimgolf_gym.dataclasses.VimGolfChallengeDefinition = get_local_challenge_definition(challenge_id)
 
 # get the challenge metadata
-# VimGolfChallengeMetadata: (href:str, title:str, detail:str, challenge_hash:str)
+# VimGolfChallengeMetadata: (href: str, title: str, detail: str, challenge_hash: str)
 metadata: vimgolf_gym.dataclasses.VimGolfChallengeMetadata = vimgolf_gym.get_local_challenge_metadata(challenge_id)
 
 # get the worst solution
@@ -250,7 +250,7 @@ metadata: vimgolf_gym.dataclasses.VimGolfChallengeMetadata = vimgolf_gym.get_loc
 solution: vimgolf_gym.dataclasses. = vimgolf_gym.get_local_challenge_worst_solution(challenge_id)
 
 # get the worst solution header
-# VimGolfParsedPublicSolutionHeader: (rank:str, score:str, user_name:str, user_id:str, data:datetime)
+# VimGolfParsedPublicSolutionHeader: (rank: str, score: str, user_name: str, user_id: str, data: datetime)
 header: vimgolf_gym.dataclasses.VimGolfParsedPublicSolutionHeader = vimgolf_gym.get_local_challenge_worst_solution_header(challenge_id)
 ```
 
