@@ -179,7 +179,8 @@ def play(challenge, results=None, buffer_file: typing.Optional[str] = None):
         while True:
             with open(infile, "w") as f:
                 f.write(challenge.in_text)
-
+            with open(outfile, 'w') as f:
+                f.write(challenge.out_text)
             if buffer_file:
                 _prepare_cybergod_vimrc_with_buffer_file(buffer_file)
                 vimrc = _CYBERGOD_VIMGOLF_VIMRC_FILEPATH
@@ -258,6 +259,8 @@ def play(challenge, results=None, buffer_file: typing.Optional[str] = None):
             while True:
                 # Generate the menu items inside the loop since it can change across iterations
                 # (e.g., upload option can be removed)
+                with open(outfile, 'w') as f:
+                    f.write(challenge.out_text)
                 menu = []
                 if not correct:
                     menu.append(("d", "Show diff"))

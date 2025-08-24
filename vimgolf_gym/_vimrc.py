@@ -44,7 +44,7 @@ set t_RV=               " http://bugs.debian.org/608242
                         " http://groups.google.com/group/vim_dev/browse_thread/
                         "        thread/9770ea844cec3282
 
-autocmd TextChanged,TextChangedI,FocusLost * write! {buffer_file}
+autocmd TextChanged,TextChangedI * write! {buffer_file}
                         "use write! instead of write for overwriting
 """
     return ret

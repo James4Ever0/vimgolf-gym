@@ -220,6 +220,9 @@ env = vimgolf_gym.make(env_name)
 # or run the executor with docker
 env = vimgolf_gym.make(env_name, use_docker=True)
 
+# if you want to read the buffer of the editor (and avoid cheating)
+env = vimgolf_gym.make(env_name, )
+
 # if you want to customize the challenge
 env = vimgolf_gym.make("vimgolf-custom", custom_challenge = vimgolf_gym.dataclasses.VimGolfCustomChallenge(input="", output="hello world\n"))
 

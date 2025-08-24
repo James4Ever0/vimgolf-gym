@@ -24,7 +24,7 @@ RUN apt-get install -y curl
 RUN apt-get install -y vim
 RUN apt-get install -y python3
 RUN apt-get install -y python3-pip
-RUN pip install vimgolf-gym==0.0.2
+RUN pip install vimgolf-gym==0.0.4
 
 RUN mkdir -p /root/.cache/cybergod-vimgolf-dataset
 RUN curl -Lk -o /root/.cache/cybergod-vimgolf-dataset/challenges.zip http://www.kaggle.com/api/v1/datasets/download/jessysisca/vimgolf-challenges-and-solutions
