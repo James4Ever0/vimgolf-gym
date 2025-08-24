@@ -11,6 +11,7 @@ _CYBERGOD_VIMGOLF_CONFIG_TMPDIR = tempfile.TemporaryDirectory()
 atexit.register(_CYBERGOD_VIMGOLF_CONFIG_TMPDIR.cleanup)
 
 def _prepare_vimrc_content_with_buffer_file(buffer_file:str):
+    buffer_file = os.path.abspath(buffer_file)
     ret = f"""
 " http://vimdoc.sourceforge.net/htmldoc/starting.html#vimrc
 

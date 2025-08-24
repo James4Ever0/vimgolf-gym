@@ -229,6 +229,12 @@ env = vimgolf_gym.make(env_name, log_buffer=True)
 # retrieve the editor buffer to track progress
 buffer = env.buffer
 
+# reset the env
+env.reset()
+
+# close the env
+env.close()
+
 # if you want to close the environment automatically
 with vimgolf_gym.make(env_name) as env:
     # take an action

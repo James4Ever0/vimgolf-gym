@@ -49,6 +49,7 @@ def parse_commandline_arguments():
         - --input_file: str, the path to the input file
         - --output_file: str, the path to the output file
         - --log_file: str, the path to the log file
+        - --buffer_file: str, the path to the buffer file
     """
 
     parser = argparse.ArgumentParser()
