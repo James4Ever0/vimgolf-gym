@@ -10,6 +10,7 @@ import threading
 import time
 import os
 import signal
+import atexit
 
 import agg_python_bindings
 import ptyprocess
@@ -132,10 +133,14 @@ class TerminalProcess:
             height (int): Height of the terminal emulator
             backend (str, optional): Backend to use for terminal emulator. Defaults to "avt".
         """
+        self._closing = False
         rows, cols = height, width
-        self.pty_process: ptyprocess.PtyProcess = cast(ptyprocess.PtyProcess,ptyprocess.PtyProcess.spawn(command, dimensions=(rows, cols)))
+        self.pty_process: ptyprocess.PtyProcess = cast(
+            ptyprocess.PtyProcess,
+            ptyprocess.PtyProcess.spawn(command, dimensions=(rows, cols)),
+        )
         """a process executing command in a pseudo terminal"""
-        
+
         if backend == "avt":
             self.vt_screen = AvtScreen(width=width, height=height)
             """virtual terminal screen"""
@@ -144,13 +149,14 @@ class TerminalProcess:
                 "Unknown terminal emulator backend '%s' (known ones: avt, pyte)"
                 % backend
             )
-        
+
         self.vt_screen = cast(_TerminalScreenProtocol, self.vt_screen)
 
         self.__pty_process_reading_thread = threading.Thread(
             target=self.__read_and_update_screen, daemon=True
         )
         self.__start_ptyprocess_reading_thread()
+        atexit.register(self.close)
 
     def __start_ptyprocess_reading_thread(self):
         """Starts a thread to read output from the terminal process and update the Pyte screen"""
@@ -162,12 +168,14 @@ class TerminalProcess:
 
     def close(self):
         """Closes the terminal process and the reading thread"""
-        os.kill(self.pty_process.pid, signal.SIGTERM)
-        time.sleep(0.5)
-        if self.pty_process.isalive:
-            os.kill(self.pty_process.pid, signal.SIGKILL)
-        self.vt_screen.close()
-        self.__pty_process_reading_thread.join(timeout=0.5)
+        if not self._closing:
+            self._closing = True
+            os.kill(self.pty_process.pid, signal.SIGTERM)
+            time.sleep(0.5)
+            if self.pty_process.isalive:
+                os.kill(self.pty_process.pid, signal.SIGKILL)
+            self.vt_screen.close()
+            self.__pty_process_reading_thread.join(timeout=0.5)
 
     def __read_and_update_screen(self, poll_interval=0.01):
         """Reads available output from terminal and updates Pyte screen
