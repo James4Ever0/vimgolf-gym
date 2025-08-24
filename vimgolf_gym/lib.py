@@ -445,6 +445,7 @@ class VimGolfEnv:
         output_file: str,
         width: int = 80,
         height: int = 24,
+        init_keys: str = "",
         use_docker: bool = False,
         log_buffer: bool = False,
     ):
@@ -457,6 +458,7 @@ class VimGolfEnv:
             height (int): the height of the terminal
             use_docker (bool): whether use dockerized executor or local (requiring vim installed)
             log_buffer (bool): whether to log the editor buffer or not
+            init_keys (str): initial input keys in Vimgolf solution style
         """
 
         self.use_docker = use_docker
@@ -470,6 +472,9 @@ class VimGolfEnv:
 
         self.log_buffer = log_buffer
         """whether to log the editor buffer or not"""
+
+        self.init_keys = init_keys
+        """initial input keys in Vimgolf solution style"""
 
         assert os.path.isfile(
             self.input_file
@@ -533,10 +538,14 @@ class VimGolfEnv:
                 "--log_file",
                 docker_log_file,
             ]
+            if self.init_keys:
+                self.command += ["--init_keys", self.init_keys]
         else:
             extra_flags = []
             if self.log_buffer:
                 extra_flags += ["--buffer_file", self.buffer_file]
+            if self.init_keys:
+                extra_flags += ["--init_keys", self.init_keys]
             self.command = [
                 sys.executable,
                 "-m",
@@ -679,6 +688,32 @@ class VimGolfEnv:
             subprocess.run(
                 ["docker", "kill", self._container_name], capture_output=True
             )
+
+    def verify_keys(self, keys: str):
+        """Verify a solution by its keys
+
+        Args:
+            keys (str): the keys to verify, in Vimgolf style
+        """
+        assert keys, "Keys cannot be empty"
+        with VimGolfEnv(
+            input_file=self.input_file,
+            output_file=self.output_file,
+            init_keys=keys,
+            use_docker=self.use_docker,
+            log_buffer=True,
+        ) as env:
+            for _ in range(3):
+                success = env.success
+                if success:
+                    break
+                time.sleep(1)
+            if not success:
+                buffer = env.buffer
+                with open(self.output_file, "rb") as f:
+                    expected_output = f.read()
+                success = buffer == expected_output
+            return success
 
     def close(self):
         """Close the environment"""

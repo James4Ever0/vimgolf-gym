@@ -50,6 +50,7 @@ def parse_commandline_arguments():
         - --output_file: str, the path to the output file
         - --log_file: str, the path to the log file
         - --buffer_file: str, the path to the buffer file
+        - --init_keys: str, the initial keys to type into Vim
     """
 
     parser = argparse.ArgumentParser()
@@ -57,6 +58,7 @@ def parse_commandline_arguments():
     parser.add_argument("--output_file", type=str, required=True)
     parser.add_argument("--log_file", type=str, required=True)
     parser.add_argument("--buffer_file", type=str, default=None)
+    parser.add_argument("--init_keys", type=str, default="")
     args = parser.parse_args()
     return args
 
@@ -68,8 +70,7 @@ def main():
     It sets up the logging to a file and then calls the local function to execute
     the challenge.
 
-    The local function is called with the input file, output file and an empty
-    string as the init_keys argument.
+    The local function is called with the input file, output file, buffer file and init keys.
 
     """
     args = parse_commandline_arguments()
@@ -82,9 +83,14 @@ def main():
             infile=args.input_file,
             outfile=args.output_file,
             buffer_file=args.buffer_file,
+            init_keys=args.init_keys,
         )
     else:
-        local(infile=args.input_file, outfile=args.output_file)
+        local(
+            infile=args.input_file,
+            outfile=args.output_file,
+            init_keys=args.init_keys,
+        )
 
 
 def local(
@@ -180,7 +186,7 @@ def play(challenge, results=None, buffer_file: typing.Optional[str] = None):
         while True:
             with open(infile, "w") as f:
                 f.write(challenge.in_text)
-            with open(outfile, 'w') as f:
+            with open(outfile, "w") as f:
                 f.write(challenge.out_text)
             if buffer_file:
                 _prepare_cybergod_vimrc_with_buffer_file(buffer_file)
@@ -260,9 +266,9 @@ def play(challenge, results=None, buffer_file: typing.Optional[str] = None):
             while True:
                 # Generate the menu items inside the loop since it can change across iterations
                 # (e.g., upload option can be removed)
-                with open(infile, 'w') as f:
+                with open(infile, "w") as f:
                     f.write(challenge.in_text)
-                with open(outfile, 'w') as f:
+                with open(outfile, "w") as f:
                     f.write(challenge.out_text)
                 menu = []
                 if not correct:

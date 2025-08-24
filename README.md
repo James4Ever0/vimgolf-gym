@@ -236,6 +236,9 @@ env.reset()
 # close the env
 env.close()
 
+# verify a solution by its keys
+success = env.verify_keys("ihello world<NL>hello world<Esc>:wq<NL>")
+
 # if you want to close the environment automatically
 with vimgolf_gym.make(env_name) as env:
     # take an action
