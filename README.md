@@ -9,7 +9,7 @@
 <p align="center"><h1 align="center">vimgolf-gym</h1></p>
 <p align="center">OpenAI gym like, customizable environment and benchmark for Vimgolf.</p>
 <p align="center">
-<a href="https://github.com/james4ever0/vimgolf-gym/blob/main/LICENSE"><img alt="License: WTFPL"
+<a href="https://github.com/james4ever0/vimgolf-gym/blob/main/LICENSE"><img alt="License: UNLICENSE"
  src="https://img.shields.io/badge/license-UNLICENSE-green.svg?style=flat"></a>
 <a href="https://pypi.org/project/vimgolf-gym/"><img alt="PyPI" src="https://img.shields.io/pypi/v/vimgolf-gym"></a>
 <a href="https://james4ever0.github.io/vimgolf-gym/"><img src="https://img.shields.io/badge/API-Docs-blueviolet" alt="API documentation"></a>
@@ -220,11 +220,14 @@ env = vimgolf_gym.make(env_name)
 # or run the executor with docker
 env = vimgolf_gym.make(env_name, use_docker=True)
 
-# if you want to read the buffer of the editor (and avoid cheating)
-env = vimgolf_gym.make(env_name, )
-
 # if you want to customize the challenge
 env = vimgolf_gym.make("vimgolf-custom", custom_challenge = vimgolf_gym.dataclasses.VimGolfCustomChallenge(input="", output="hello world\n"))
+
+# if you want to read the buffer of the editor (and avoid cheating)
+env = vimgolf_gym.make(env_name, log_buffer=True)
+
+# retrieve the editor buffer to track progress
+buffer = env.buffer
 
 # take an action
 env.act("hello world\n")
