@@ -4,7 +4,7 @@ import os
 import sys
 
 here = os.path.abspath(os.path.dirname(__file__))
-VERSION="0.0.4"
+VERSION="0.0.5"
 
 class UploadCommand(Command):
     """Support setup.py upload."""

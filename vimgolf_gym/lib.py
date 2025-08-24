@@ -25,12 +25,17 @@ import zipfile
 
 import PIL.Image
 import requests
+import uuid
 
 import vimgolf.vimgolf as vimgolf
 import vimgolf_gym.dataclasses as dataclasses
 import vimgolf_gym.log_parser as log_parser
 import vimgolf_gym.terminal_executor as terminal_executor
-from vimgolf_gym._vimrc import _prepare_cybergod_vimrc_with_buffer_file, _CYBERGOD_VIMGOLF_VIMRC_FILEPATH
+from vimgolf_gym._vimrc import (
+    _prepare_cybergod_vimrc_with_buffer_file,
+    _CYBERGOD_VIMGOLF_VIMRC_FILEPATH,
+)
+import subprocess
 
 _HOMEDIR = os.path.expanduser("~")
 
@@ -480,8 +485,12 @@ class VimGolfEnv:
         self.log_file = os.path.join(self.log_directory.name, "vimgolf.log")
         """the log file path, used to retrieve progress info of the vimgolf process"""
 
-        self.buffer_file = os.path.join(self.log_directory.name, "vimgolf_editor_buffer")
+        self.buffer_file = os.path.join(
+            self.log_directory.name, "vimgolf_editor_buffer"
+        )
         """the editor buffer, used to track granual progress"""
+
+        self._container_name = str(uuid.uuid4())
 
         if self.use_docker:
             mountpoint = "/vimgolf_gym_workdir"
@@ -494,12 +503,21 @@ class VimGolfEnv:
             extra_docker_run_params = []
             if self.log_buffer:
                 _prepare_cybergod_vimrc_with_buffer_file(docker_buffer_file)
-                extra_docker_run_params += ["-v", "%s:%s:ro" % (_CYBERGOD_VIMGOLF_VIMRC_FILEPATH, "/usr/local/lib/python3.10/dist-packages/vimgolf/vimgolf.vimrc")]
+                extra_docker_run_params += [
+                    "-v",
+                    "%s:%s:ro"
+                    % (
+                        _CYBERGOD_VIMGOLF_VIMRC_FILEPATH,
+                        "/usr/local/lib/python3.10/dist-packages/vimgolf/vimgolf.vimrc",
+                    ),
+                ]
             self.command = [
                 "docker",
                 "run",
                 "--rm",
                 "-it",
+                "--name",
+                self._container_name,
                 "-v",
                 "%s:%s" % (self.log_directory.name, mountpoint),
                 *extra_docker_run_params,
@@ -529,7 +547,7 @@ class VimGolfEnv:
                 self.output_file,
                 "--log_file",
                 self.log_file,
-                *extra_flags
+                *extra_flags,
             ]
 
         self.command: list[str]
@@ -546,6 +564,7 @@ class VimGolfEnv:
         self.log_watcher: log_parser.VimGolfLogWatcher
         """log watcher for tracking vimgolf log output"""
         atexit.register(self.log_directory.cleanup)
+        atexit.register(self._kill_docker_container)
 
     @property
     def buffer(self) -> typing.Optional[bytes]:
@@ -554,7 +573,7 @@ class VimGolfEnv:
             return None
         else:
             if os.path.isfile(self.buffer_file):
-                with open(self.buffer_file, 'rb') as f:
+                with open(self.buffer_file, "rb") as f:
                     return f.read()
 
     def act(self, action: str):
@@ -646,9 +665,14 @@ class VimGolfEnv:
             image = PIL.Image.open(png_tmpfile_path)
             return image
 
+    def _kill_docker_container(self):
+        if self.use_docker:
+            subprocess.run(["docker", "kill", self._container_name], capture_output=True)
+
     def close(self):
         """Close the environment"""
         self.executor.close()
+        self._kill_docker_container()
         del self.executor
         if os.path.exists(self.log_file):
             os.remove(self.log_file)

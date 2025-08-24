@@ -8,6 +8,8 @@ Code source: [terminal_asciicast_record_executor.py](https://github.com/James4Ev
 
 import threading
 import time
+import os
+import signal
 
 import agg_python_bindings
 import ptyprocess
@@ -160,9 +162,12 @@ class TerminalProcess:
 
     def close(self):
         """Closes the terminal process and the reading thread"""
-        self.pty_process.close()
+        os.kill(self.pty_process.pid, signal.SIGTERM)
+        time.sleep(0.5)
+        if self.pty_process.isalive:
+            os.kill(self.pty_process.pid, signal.SIGKILL)
         self.vt_screen.close()
-        self.__pty_process_reading_thread.join()
+        self.__pty_process_reading_thread.join(timeout=0.5)
 
     def __read_and_update_screen(self, poll_interval=0.01):
         """Reads available output from terminal and updates Pyte screen
