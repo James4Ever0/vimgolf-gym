@@ -5,8 +5,13 @@ Vimgolf API wrapper
 import argparse
 import json
 import logging
+import typing
+from vimgolf_gym._vimrc import (
+    _CYBERGOD_VIMGOLF_VIMRC_FILEPATH,
+    _prepare_cybergod_vimrc_with_buffer_file,
+    _VIMGOLF_VIMRC_FILEPATH,
+)
 
-import vimgolf.vimgolf
 from vimgolf.vimgolf import (
     IGNORED_KEYSTROKES,
     Challenge,
@@ -27,10 +32,6 @@ from vimgolf.vimgolf import (
     upload_result,
     working_directory,
     write,
-)
-
-_VIMGOLF_VIMRC = os.path.join(
-    os.path.dirname(vimgolf.vimgolf.__file__), "vimgolf.vimrc"
 )
 
 
@@ -54,6 +55,7 @@ def parse_commandline_arguments():
     parser.add_argument("--input_file", type=str, required=True)
     parser.add_argument("--output_file", type=str, required=True)
     parser.add_argument("--log_file", type=str, required=True)
+    parser.add_argument("--buffer_file", type=str, default=None)
     args = parser.parse_args()
     return args
 
@@ -74,10 +76,19 @@ def main():
     file_handler = logging.FileHandler(log_file)
     file_handler.setLevel(logging.DEBUG)
     logger.addHandler(file_handler)
-    local(infile=args.input_file, outfile=args.output_file)
+    if args.buffer_file:
+        local(
+            infile=args.input_file,
+            outfile=args.output_file,
+            buffer_file=args.buffer_file,
+        )
+    else:
+        local(infile=args.input_file, outfile=args.output_file)
 
 
-def local(infile, outfile, init_keys=""):
+def local(
+    infile: str, outfile: str, buffer_file: typing.Optional[str] = None, init_keys=""
+):
     """
     Execute a local VimGolf challenge.
 
@@ -88,6 +99,7 @@ def local(infile, outfile, init_keys=""):
         infile: str, the path to the input file
         outfile: str, the path to the output file
         init_keys: str, the initial keys to type into Vim
+        buffer_file: typing.Optional[str]: Where to write the vim editor buffer. Defaults to None.
 
     Returns:
         Status: The status of the challenge
@@ -109,17 +121,18 @@ def local(infile, outfile, init_keys=""):
         api_key=None,
         init_keys=init_keys,
     )
-    status = play(challenge)
+    status = play(challenge, buffer_file=buffer_file)
     return status
 
 
-def play(challenge, results=None):
+def play(challenge, results=None, buffer_file: typing.Optional[str] = None):
     """
     Execute a VimGolf challenge.
 
     Args:
         challenge: Challenge, the challenge to play
         results: list of Result, the results of previous plays
+        buffer_file: typing.Optional[str]: Where to write the vim editor buffer. Defaults to None.
 
     Returns:
         Status: The status of the challenge
@@ -167,7 +180,11 @@ def play(challenge, results=None):
             with open(infile, "w") as f:
                 f.write(challenge.in_text)
 
-            vimrc = _VIMGOLF_VIMRC
+            if buffer_file:
+                _prepare_cybergod_vimrc_with_buffer_file(buffer_file)
+                vimrc = _CYBERGOD_VIMGOLF_VIMRC_FILEPATH
+            else:
+                vimrc = _VIMGOLF_VIMRC_FILEPATH
             play_args = [
                 "-Z",  # restricted mode, utilities not allowed
                 "-n",  # no swap file, memory only editing

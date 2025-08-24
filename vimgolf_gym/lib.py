@@ -30,6 +30,7 @@ import vimgolf.vimgolf as vimgolf
 import vimgolf_gym.dataclasses as dataclasses
 import vimgolf_gym.log_parser as log_parser
 import vimgolf_gym.terminal_executor as terminal_executor
+from vimgolf_gym._vimrc import _prepare_cybergod_vimrc_with_buffer_file, _CYBERGOD_VIMGOLF_VIMRC_FILEPATH
 
 _HOMEDIR = os.path.expanduser("~")
 
@@ -479,13 +480,21 @@ class VimGolfEnv:
         self.log_file = os.path.join(self.log_directory.name, "vimgolf.log")
         """the log file path, used to retrieve progress info of the vimgolf process"""
 
+        self.buffer_file = os.path.join(self.log_directory.name, "vimgolf_editor_buffer")
+        """the editor buffer, used to track granual progress"""
+
         if self.use_docker:
             mountpoint = "/vimgolf_gym_workdir"
             docker_output_file = os.path.join(mountpoint, "out")
             docker_input_file = os.path.join(mountpoint, "in")
+            docker_buffer_file = os.path.join(mountpoint, "vimgolf_editor_buffer")
+            docker_log_file = os.path.join(mountpoint, "vimgolf.log")
             shutil.copy(self.input_file, os.path.join(self.log_directory.name, "in"))
             shutil.copy(self.output_file, os.path.join(self.log_directory.name, "out"))
-            docker_log_file = os.path.join(mountpoint, "vimgolf.log")
+            extra_docker_run_params = []
+            if self.log_buffer:
+                _prepare_cybergod_vimrc_with_buffer_file(docker_buffer_file)
+                extra_docker_run_params += ["-v", "%s:%s:ro" % (_CYBERGOD_VIMGOLF_VIMRC_FILEPATH, "/usr/local/lib/python3.10/dist-packages/vimgolf/vimgolf.vimrc")]
             self.command = [
                 "docker",
                 "run",
@@ -493,6 +502,7 @@ class VimGolfEnv:
                 "-it",
                 "-v",
                 "%s:%s" % (self.log_directory.name, mountpoint),
+                *extra_docker_run_params,
                 "--entrypoint",
                 "python3",
                 "agile4im/cybergod_vimgolf_gym",
@@ -506,6 +516,9 @@ class VimGolfEnv:
                 docker_log_file,
             ]
         else:
+            extra_flags = []
+            if self.log_buffer:
+                extra_flags += ["--buffer_file", self.buffer_file]
             self.command = [
                 sys.executable,
                 "-m",
@@ -516,6 +529,7 @@ class VimGolfEnv:
                 self.output_file,
                 "--log_file",
                 self.log_file,
+                *extra_flags
             ]
 
         self.command: list[str]
@@ -534,12 +548,14 @@ class VimGolfEnv:
         atexit.register(self.log_directory.cleanup)
 
     @property
-    def buffer(self) -> typing.Optional[str]:
+    def buffer(self) -> typing.Optional[bytes]:
         """The editor buffer"""
         if not self.log_buffer:
             return None
         else:
-            raise NotImplementedError("Editor buffer retrieval not implemented")
+            if os.path.isfile(self.buffer_file):
+                with open(self.buffer_file, 'rb') as f:
+                    return f.read()
 
     def act(self, action: str):
         """Take an action
