@@ -65,6 +65,7 @@ class AvtScreen:
         """
         self.vt = agg_python_bindings.TerminalEmulator(width, height)
         """terminal emulator provided by avt"""
+        self._closing = False
 
     def write_bytes(self, _bytes: bytes):
         """
@@ -119,7 +120,15 @@ class AvtScreen:
 
         This is necessary to avoid crashes when creating multiple instances of this class.
         """
-        del self.vt
+        if not self._closing:
+            self._closing = True
+            del self.vt
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc, value, tb):
+        self.close()
 
 
 class TerminalProcess:
@@ -177,6 +186,12 @@ class TerminalProcess:
             self.vt_screen.close()
             self.__pty_process_reading_thread.join(timeout=0.5)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc, value, tb):
+        self.close()
+
     def __read_and_update_screen(self, poll_interval=0.01):
         """Reads available output from terminal and updates Pyte screen
 
@@ -215,6 +230,8 @@ class TerminalExecutor:
             height (int): Height of the terminal emulator
         """
         self.terminal = TerminalProcess(command=command, width=width, height=height)
+        """a terminal process, running command in pty screen"""
+        self._closing = False
 
     def input(self, text: str):
         """
@@ -248,7 +265,9 @@ class TerminalExecutor:
         """
         Closes the terminal emulator process and the associated reading thread.
         """
-        self.terminal.close()
+        if not self._closing:
+            self._closing = True
+            self.terminal.close()
 
 
 def test_harmless_command_locally_with_bash():

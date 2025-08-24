@@ -550,6 +550,8 @@ class VimGolfEnv:
                 *extra_flags,
             ]
 
+        self._closing = False
+
         self.command: list[str]
         """the command passed to underlying terminal executor"""
 
@@ -616,6 +618,12 @@ class VimGolfEnv:
         """
         return self.log_watcher.results
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc, value, tb):
+        self.close()
+
     @property
     def success_results(self):
         """The success results of the vimgolf challenge environment
@@ -645,6 +653,7 @@ class VimGolfEnv:
     def reset(self):
         """Reset the environment"""
         self.close()
+        self._closing = False
         self.create_executor_and_log_watcher()
 
     def render(self):
@@ -667,13 +676,17 @@ class VimGolfEnv:
 
     def _kill_docker_container(self):
         if self.use_docker:
-            subprocess.run(["docker", "kill", self._container_name], capture_output=True)
+            subprocess.run(
+                ["docker", "kill", self._container_name], capture_output=True
+            )
 
     def close(self):
         """Close the environment"""
-        self.executor.close()
-        self._kill_docker_container()
-        del self.executor
-        if os.path.exists(self.log_file):
-            os.remove(self.log_file)
-        setattr(self, "executor", None)
+        if not self._closing:
+            self._closing = True
+            self.executor.close()
+            self._kill_docker_container()
+            del self.executor
+            if os.path.exists(self.log_file):
+                os.remove(self.log_file)
+            setattr(self, "executor", None)

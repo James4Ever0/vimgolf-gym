@@ -229,22 +229,24 @@ env = vimgolf_gym.make(env_name, log_buffer=True)
 # retrieve the editor buffer to track progress
 buffer = env.buffer
 
-# take an action
-env.act("hello world\n")
+# if you want to close the environment automatically
+with vimgolf_gym.make(env_name) as env:
+    # take an action
+    env.act("hello world\n")
 
-# take a screenshot and output a PIL image
-img = env.screenshot()
+    # take a screenshot and output a PIL image
+    img = env.screenshot()
 
-# preview screenshot
-env.render()
+    # preview screenshot
+    env.render()
 
-# reset the environment
-env.reset()
+    # reset the environment
+    env.reset()
 
-# check if the environment has at least one success result
-if env.success:
-   # VimGolfEnvResult: (correct: bool, keys: str, score: int)
-   result: vimgolf_gym.dataclasses.VimGolfEnvResult = env.get_last_success_result()
+    # check if the environment has at least one success result
+    if env.success:
+        # VimGolfEnvResult: (correct: bool, keys: str, score: int)
+        result: vimgolf_gym.dataclasses.VimGolfEnvResult = env.get_last_success_result()
 ```
 
 The local challenges are stored in `~/.cache/cybergod-vimgolf-challenges/`.
