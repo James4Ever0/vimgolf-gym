@@ -15,6 +15,7 @@
 <a href="https://james4ever0.github.io/vimgolf-gym/"><img src="https://img.shields.io/badge/API-Docs-blueviolet" alt="API documentation"></a>
 <a href="https://pepy.tech/projects/vimgolf-gym"><img src="https://static.pepy.tech/badge/vimgolf-gym" alt="PyPI Downloads"></a>
 <a href="https://github.com/james4ever0/vimgolf-gym"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+<a href="https://huggingface.co/datasets/James4Ever0/vimgolf_challenges_and_solutions"><img alt="Vimgolf public challenge dataset" src="https://img.shields.io/badge/🤗-HuggingFace-blue"></a>
 </p>
 </div>
 
