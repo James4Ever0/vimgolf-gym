@@ -162,27 +162,27 @@
 </span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="sd">Log parser for VimGolf executor</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a>
-</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="kn">import</span> <span class="nn">copy</span>
-</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="kn">import</span> <span class="nn">json</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="kn">import</span> <span class="nn">os</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Type</span>
 </span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a>
-</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="kn">from</span> <span class="nn">vimgolf_gym.dataclasses</span> <span class="kn">import</span> <span class="n">VimGolfEnvResult</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">vimgolf_gym.dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">VimGolfEnvResult</span>
 </span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a>
 </span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a>
-</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="k">class</span> <span class="nc">AbstractLogParser</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="k">class</span><span class="w"> </span><span class="nc">AbstractLogParser</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
 </span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a>    <span class="nd">@abstractmethod</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a>    <span class="k">def</span> <span class="nf">feed_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span> <span class="o">...</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">feed_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span> <span class="o">...</span>
 </span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a>
 </span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a>
 </span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a><span class="c1"># We keep track of the log file attributes.</span>
 </span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a><span class="c1"># Specifically, the file size.</span>
 </span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a><span class="c1"># If the file size changes, we will reparse the log.</span>
 </span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a><span class="c1"># In more advanced usage, we could seek to given point and parse from there, avoiding reparsing from the beginning.</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a><span class="k">class</span> <span class="nc">LogWatcher</span><span class="p">:</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parser_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">AbstractLogParser</span><span class="p">]):</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a><span class="k">class</span><span class="w"> </span><span class="nc">LogWatcher</span><span class="p">:</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parser_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">AbstractLogParser</span><span class="p">]):</span>
 </span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a><span class="sd">        Initialize the log watcher with a log file and a parser class.</span>
 </span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a>
@@ -203,7 +203,7 @@
 </span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">last_filesize</span> <span class="o">=</span> <span class="mi">0</span>
 </span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">last_position</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Track the last read position</span>
 </span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>
-</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;advanced&quot;</span><span class="p">):</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;advanced&quot;</span><span class="p">):</span>
 </span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="sd">        Update the log watcher using one of three strategies.</span>
 </span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>
@@ -236,7 +236,7 @@
 </span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>                <span class="o">%</span> <span class="n">style</span>
 </span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>            <span class="p">)</span>
 </span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>    <span class="k">def</span> <span class="nf">simple_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">simple_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="sd">        Read the entire log file and reset the parser if the file size has changed.</span>
 </span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>
@@ -250,7 +250,7 @@
 </span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">naive_update</span><span class="p">()</span>
 </span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">last_filesize</span> <span class="o">=</span> <span class="n">current_size</span>
 </span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>    <span class="k">def</span> <span class="nf">naive_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">naive_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a><span class="sd">        Reset the parser and read the entire log file.</span>
 </span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>
@@ -268,7 +268,7 @@
 </span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>        <span class="p">)</span>
 </span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">last_position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_filesize</span>
 </span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>
-</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>    <span class="k">def</span> <span class="nf">advanced_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">advanced_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a><span class="sd">        Read only the new content from the log file.</span>
 </span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>
@@ -304,8 +304,8 @@
 </span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a>                <span class="bp">self</span><span class="o">.</span><span class="n">last_position</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
 </span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a>
 </span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a>
-</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a><span class="k">class</span> <span class="nc">VimGolfLogWatcher</span><span class="p">(</span><span class="n">LogWatcher</span><span class="p">):</span>
-</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">update_style</span><span class="o">=</span><span class="s2">&quot;advanced&quot;</span><span class="p">):</span>
+</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a><span class="k">class</span><span class="w"> </span><span class="nc">VimGolfLogWatcher</span><span class="p">(</span><span class="n">LogWatcher</span><span class="p">):</span>
+</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">update_style</span><span class="o">=</span><span class="s2">&quot;advanced&quot;</span><span class="p">):</span>
 </span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a><span class="sd">        Initialize a VimGolfLogWatcher with a log file and an update style.</span>
 </span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>
@@ -324,7 +324,7 @@
 </span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="p">:</span> <span class="n">VimGolfLogParser</span>
 </span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">update_style</span> <span class="o">=</span> <span class="n">update_style</span>
 </span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a>
-</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a>    <span class="k">def</span> <span class="nf">default_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">default_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a><span class="sd">        Call the update method with the default update style.</span>
 </span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a>
@@ -337,7 +337,7 @@
 </span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">update_style</span><span class="p">)</span>
 </span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a>
 </span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a>    <span class="nd">@property</span>
-</span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a>    <span class="k">def</span> <span class="nf">success</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">success</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="L-181"><a href="#L-181"><span class="linenos">181</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-182"><a href="#L-182"><span class="linenos">182</span></a><span class="sd">        Check if the vimgolf challenge has been solved successfully.</span>
 </span><span id="L-183"><a href="#L-183"><span class="linenos">183</span></a>
@@ -351,7 +351,7 @@
 </span><span id="L-191"><a href="#L-191"><span class="linenos">191</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">default_update</span><span class="p">()</span>
 </span><span id="L-192"><a href="#L-192"><span class="linenos">192</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">success</span>
 </span><span id="L-193"><a href="#L-193"><span class="linenos">193</span></a>
-</span><span id="L-194"><a href="#L-194"><span class="linenos">194</span></a>    <span class="k">def</span> <span class="nf">get_best_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-194"><a href="#L-194"><span class="linenos">194</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_best_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="L-195"><a href="#L-195"><span class="linenos">195</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-196"><a href="#L-196"><span class="linenos">196</span></a><span class="sd">        Return the best success result in the log watcher.</span>
 </span><span id="L-197"><a href="#L-197"><span class="linenos">197</span></a>
@@ -365,7 +365,7 @@
 </span><span id="L-205"><a href="#L-205"><span class="linenos">205</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">default_update</span><span class="p">()</span>
 </span><span id="L-206"><a href="#L-206"><span class="linenos">206</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">get_best_success_result</span><span class="p">()</span>
 </span><span id="L-207"><a href="#L-207"><span class="linenos">207</span></a>
-</span><span id="L-208"><a href="#L-208"><span class="linenos">208</span></a>    <span class="k">def</span> <span class="nf">get_last_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-208"><a href="#L-208"><span class="linenos">208</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_last_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="L-209"><a href="#L-209"><span class="linenos">209</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-210"><a href="#L-210"><span class="linenos">210</span></a><span class="sd">        Return the last success result in the log watcher.</span>
 </span><span id="L-211"><a href="#L-211"><span class="linenos">211</span></a>
@@ -380,7 +380,7 @@
 </span><span id="L-220"><a href="#L-220"><span class="linenos">220</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">get_last_success_result</span><span class="p">()</span>
 </span><span id="L-221"><a href="#L-221"><span class="linenos">221</span></a>
 </span><span id="L-222"><a href="#L-222"><span class="linenos">222</span></a>    <span class="nd">@property</span>
-</span><span id="L-223"><a href="#L-223"><span class="linenos">223</span></a>    <span class="k">def</span> <span class="nf">results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-223"><a href="#L-223"><span class="linenos">223</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="L-224"><a href="#L-224"><span class="linenos">224</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-225"><a href="#L-225"><span class="linenos">225</span></a><span class="sd">        The results of the vimgolf challenge environment.</span>
 </span><span id="L-226"><a href="#L-226"><span class="linenos">226</span></a>
@@ -395,7 +395,7 @@
 </span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">results</span>
 </span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a>
 </span><span id="L-237"><a href="#L-237"><span class="linenos">237</span></a>    <span class="nd">@property</span>
-</span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a>    <span class="k">def</span> <span class="nf">success_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">success_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="L-239"><a href="#L-239"><span class="linenos">239</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-240"><a href="#L-240"><span class="linenos">240</span></a><span class="sd">        The successful results of the vimgolf challenge environment.</span>
 </span><span id="L-241"><a href="#L-241"><span class="linenos">241</span></a>
@@ -411,8 +411,8 @@
 </span><span id="L-251"><a href="#L-251"><span class="linenos">251</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">success_results</span>
 </span><span id="L-252"><a href="#L-252"><span class="linenos">252</span></a>
 </span><span id="L-253"><a href="#L-253"><span class="linenos">253</span></a>
-</span><span id="L-254"><a href="#L-254"><span class="linenos">254</span></a><span class="k">class</span> <span class="nc">VimGolfLogParser</span><span class="p">(</span><span class="n">AbstractLogParser</span><span class="p">):</span>
-</span><span id="L-255"><a href="#L-255"><span class="linenos">255</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-254"><a href="#L-254"><span class="linenos">254</span></a><span class="k">class</span><span class="w"> </span><span class="nc">VimGolfLogParser</span><span class="p">(</span><span class="n">AbstractLogParser</span><span class="p">):</span>
+</span><span id="L-255"><a href="#L-255"><span class="linenos">255</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="L-256"><a href="#L-256"><span class="linenos">256</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-257"><a href="#L-257"><span class="linenos">257</span></a><span class="sd">        Initialize the VimGolfLogParser.</span>
 </span><span id="L-258"><a href="#L-258"><span class="linenos">258</span></a>
@@ -420,7 +420,7 @@
 </span><span id="L-260"><a href="#L-260"><span class="linenos">260</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="L-261"><a href="#L-261"><span class="linenos">261</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">VimGolfEnvResult</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 </span><span id="L-262"><a href="#L-262"><span class="linenos">262</span></a>
-</span><span id="L-263"><a href="#L-263"><span class="linenos">263</span></a>    <span class="k">def</span> <span class="nf">feed_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="L-263"><a href="#L-263"><span class="linenos">263</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">feed_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 </span><span id="L-264"><a href="#L-264"><span class="linenos">264</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-265"><a href="#L-265"><span class="linenos">265</span></a><span class="sd">        Feed a line to the parser.</span>
 </span><span id="L-266"><a href="#L-266"><span class="linenos">266</span></a>
@@ -449,7 +449,7 @@
 </span><span id="L-289"><a href="#L-289"><span class="linenos">289</span></a>            <span class="o">...</span>
 </span><span id="L-290"><a href="#L-290"><span class="linenos">290</span></a>
 </span><span id="L-291"><a href="#L-291"><span class="linenos">291</span></a>    <span class="nd">@property</span>
-</span><span id="L-292"><a href="#L-292"><span class="linenos">292</span></a>    <span class="k">def</span> <span class="nf">success_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-292"><a href="#L-292"><span class="linenos">292</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">success_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="L-293"><a href="#L-293"><span class="linenos">293</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-294"><a href="#L-294"><span class="linenos">294</span></a><span class="sd">        The successful results of the vimgolf challenge environment.</span>
 </span><span id="L-295"><a href="#L-295"><span class="linenos">295</span></a>
@@ -464,7 +464,7 @@
 </span><span id="L-304"><a href="#L-304"><span class="linenos">304</span></a>        <span class="k">return</span> <span class="p">[</span><span class="n">it</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="k">if</span> <span class="n">it</span><span class="o">.</span><span class="n">correct</span><span class="p">]</span>
 </span><span id="L-305"><a href="#L-305"><span class="linenos">305</span></a>
 </span><span id="L-306"><a href="#L-306"><span class="linenos">306</span></a>    <span class="nd">@property</span>
-</span><span id="L-307"><a href="#L-307"><span class="linenos">307</span></a>    <span class="k">def</span> <span class="nf">success</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-307"><a href="#L-307"><span class="linenos">307</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">success</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="L-308"><a href="#L-308"><span class="linenos">308</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-309"><a href="#L-309"><span class="linenos">309</span></a><span class="sd">        Check if the vimgolf challenge has been solved successfully.</span>
 </span><span id="L-310"><a href="#L-310"><span class="linenos">310</span></a>
@@ -477,7 +477,7 @@
 </span><span id="L-317"><a href="#L-317"><span class="linenos">317</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="L-318"><a href="#L-318"><span class="linenos">318</span></a>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">success_results</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span>
 </span><span id="L-319"><a href="#L-319"><span class="linenos">319</span></a>
-</span><span id="L-320"><a href="#L-320"><span class="linenos">320</span></a>    <span class="k">def</span> <span class="nf">get_last_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-320"><a href="#L-320"><span class="linenos">320</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_last_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="L-321"><a href="#L-321"><span class="linenos">321</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-322"><a href="#L-322"><span class="linenos">322</span></a><span class="sd">        Return the last success result in the log watcher.</span>
 </span><span id="L-323"><a href="#L-323"><span class="linenos">323</span></a>
@@ -492,7 +492,7 @@
 </span><span id="L-332"><a href="#L-332"><span class="linenos">332</span></a>        <span class="k">if</span> <span class="n">success_results</span><span class="p">:</span>
 </span><span id="L-333"><a href="#L-333"><span class="linenos">333</span></a>            <span class="k">return</span> <span class="n">success_results</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 </span><span id="L-334"><a href="#L-334"><span class="linenos">334</span></a>
-</span><span id="L-335"><a href="#L-335"><span class="linenos">335</span></a>    <span class="k">def</span> <span class="nf">get_best_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-335"><a href="#L-335"><span class="linenos">335</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_best_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="L-336"><a href="#L-336"><span class="linenos">336</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the result with the lowest score&quot;&quot;&quot;</span>
 </span><span id="L-337"><a href="#L-337"><span class="linenos">337</span></a>        <span class="n">success_results</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">success_results</span><span class="p">)</span>
 </span><span id="L-338"><a href="#L-338"><span class="linenos">338</span></a>        <span class="k">if</span> <span class="n">success_results</span><span class="p">:</span>
@@ -513,10 +513,10 @@
 
     </div>
     <a class="headerlink" href="#AbstractLogParser"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="AbstractLogParser-15"><a href="#AbstractLogParser-15"><span class="linenos">15</span></a><span class="k">class</span> <span class="nc">AbstractLogParser</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-</span><span id="AbstractLogParser-16"><a href="#AbstractLogParser-16"><span class="linenos">16</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="AbstractLogParser-15"><a href="#AbstractLogParser-15"><span class="linenos">15</span></a><span class="k">class</span><span class="w"> </span><span class="nc">AbstractLogParser</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+</span><span id="AbstractLogParser-16"><a href="#AbstractLogParser-16"><span class="linenos">16</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
 </span><span id="AbstractLogParser-17"><a href="#AbstractLogParser-17"><span class="linenos">17</span></a>    <span class="nd">@abstractmethod</span>
-</span><span id="AbstractLogParser-18"><a href="#AbstractLogParser-18"><span class="linenos">18</span></a>    <span class="k">def</span> <span class="nf">feed_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span> <span class="o">...</span>
+</span><span id="AbstractLogParser-18"><a href="#AbstractLogParser-18"><span class="linenos">18</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">feed_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span> <span class="o">...</span>
 </span></pre></div>
 
 
@@ -538,7 +538,7 @@ inheritance.</p>
     </div>
     <a class="headerlink" href="#AbstractLogParser.feed_line"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="AbstractLogParser.feed_line-17"><a href="#AbstractLogParser.feed_line-17"><span class="linenos">17</span></a>    <span class="nd">@abstractmethod</span>
-</span><span id="AbstractLogParser.feed_line-18"><a href="#AbstractLogParser.feed_line-18"><span class="linenos">18</span></a>    <span class="k">def</span> <span class="nf">feed_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span> <span class="o">...</span>
+</span><span id="AbstractLogParser.feed_line-18"><a href="#AbstractLogParser.feed_line-18"><span class="linenos">18</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">feed_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span> <span class="o">...</span>
 </span></pre></div>
 
 
@@ -557,8 +557,8 @@ inheritance.</p>
 
     </div>
     <a class="headerlink" href="#LogWatcher"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="LogWatcher-25"><a href="#LogWatcher-25"><span class="linenos"> 25</span></a><span class="k">class</span> <span class="nc">LogWatcher</span><span class="p">:</span>
-</span><span id="LogWatcher-26"><a href="#LogWatcher-26"><span class="linenos"> 26</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parser_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">AbstractLogParser</span><span class="p">]):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="LogWatcher-25"><a href="#LogWatcher-25"><span class="linenos"> 25</span></a><span class="k">class</span><span class="w"> </span><span class="nc">LogWatcher</span><span class="p">:</span>
+</span><span id="LogWatcher-26"><a href="#LogWatcher-26"><span class="linenos"> 26</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parser_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">AbstractLogParser</span><span class="p">]):</span>
 </span><span id="LogWatcher-27"><a href="#LogWatcher-27"><span class="linenos"> 27</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="LogWatcher-28"><a href="#LogWatcher-28"><span class="linenos"> 28</span></a><span class="sd">        Initialize the log watcher with a log file and a parser class.</span>
 </span><span id="LogWatcher-29"><a href="#LogWatcher-29"><span class="linenos"> 29</span></a>
@@ -579,7 +579,7 @@ inheritance.</p>
 </span><span id="LogWatcher-44"><a href="#LogWatcher-44"><span class="linenos"> 44</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">last_filesize</span> <span class="o">=</span> <span class="mi">0</span>
 </span><span id="LogWatcher-45"><a href="#LogWatcher-45"><span class="linenos"> 45</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">last_position</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Track the last read position</span>
 </span><span id="LogWatcher-46"><a href="#LogWatcher-46"><span class="linenos"> 46</span></a>
-</span><span id="LogWatcher-47"><a href="#LogWatcher-47"><span class="linenos"> 47</span></a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;advanced&quot;</span><span class="p">):</span>
+</span><span id="LogWatcher-47"><a href="#LogWatcher-47"><span class="linenos"> 47</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;advanced&quot;</span><span class="p">):</span>
 </span><span id="LogWatcher-48"><a href="#LogWatcher-48"><span class="linenos"> 48</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="LogWatcher-49"><a href="#LogWatcher-49"><span class="linenos"> 49</span></a><span class="sd">        Update the log watcher using one of three strategies.</span>
 </span><span id="LogWatcher-50"><a href="#LogWatcher-50"><span class="linenos"> 50</span></a>
@@ -612,7 +612,7 @@ inheritance.</p>
 </span><span id="LogWatcher-77"><a href="#LogWatcher-77"><span class="linenos"> 77</span></a>                <span class="o">%</span> <span class="n">style</span>
 </span><span id="LogWatcher-78"><a href="#LogWatcher-78"><span class="linenos"> 78</span></a>            <span class="p">)</span>
 </span><span id="LogWatcher-79"><a href="#LogWatcher-79"><span class="linenos"> 79</span></a>
-</span><span id="LogWatcher-80"><a href="#LogWatcher-80"><span class="linenos"> 80</span></a>    <span class="k">def</span> <span class="nf">simple_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="LogWatcher-80"><a href="#LogWatcher-80"><span class="linenos"> 80</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">simple_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="LogWatcher-81"><a href="#LogWatcher-81"><span class="linenos"> 81</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="LogWatcher-82"><a href="#LogWatcher-82"><span class="linenos"> 82</span></a><span class="sd">        Read the entire log file and reset the parser if the file size has changed.</span>
 </span><span id="LogWatcher-83"><a href="#LogWatcher-83"><span class="linenos"> 83</span></a>
@@ -626,7 +626,7 @@ inheritance.</p>
 </span><span id="LogWatcher-91"><a href="#LogWatcher-91"><span class="linenos"> 91</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">naive_update</span><span class="p">()</span>
 </span><span id="LogWatcher-92"><a href="#LogWatcher-92"><span class="linenos"> 92</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">last_filesize</span> <span class="o">=</span> <span class="n">current_size</span>
 </span><span id="LogWatcher-93"><a href="#LogWatcher-93"><span class="linenos"> 93</span></a>
-</span><span id="LogWatcher-94"><a href="#LogWatcher-94"><span class="linenos"> 94</span></a>    <span class="k">def</span> <span class="nf">naive_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="LogWatcher-94"><a href="#LogWatcher-94"><span class="linenos"> 94</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">naive_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="LogWatcher-95"><a href="#LogWatcher-95"><span class="linenos"> 95</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="LogWatcher-96"><a href="#LogWatcher-96"><span class="linenos"> 96</span></a><span class="sd">        Reset the parser and read the entire log file.</span>
 </span><span id="LogWatcher-97"><a href="#LogWatcher-97"><span class="linenos"> 97</span></a>
@@ -644,7 +644,7 @@ inheritance.</p>
 </span><span id="LogWatcher-109"><a href="#LogWatcher-109"><span class="linenos">109</span></a>        <span class="p">)</span>
 </span><span id="LogWatcher-110"><a href="#LogWatcher-110"><span class="linenos">110</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">last_position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_filesize</span>
 </span><span id="LogWatcher-111"><a href="#LogWatcher-111"><span class="linenos">111</span></a>
-</span><span id="LogWatcher-112"><a href="#LogWatcher-112"><span class="linenos">112</span></a>    <span class="k">def</span> <span class="nf">advanced_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="LogWatcher-112"><a href="#LogWatcher-112"><span class="linenos">112</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">advanced_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="LogWatcher-113"><a href="#LogWatcher-113"><span class="linenos">113</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="LogWatcher-114"><a href="#LogWatcher-114"><span class="linenos">114</span></a><span class="sd">        Read only the new content from the log file.</span>
 </span><span id="LogWatcher-115"><a href="#LogWatcher-115"><span class="linenos">115</span></a>
@@ -693,7 +693,7 @@ inheritance.</p>
 
     </div>
     <a class="headerlink" href="#LogWatcher.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="LogWatcher.__init__-26"><a href="#LogWatcher.__init__-26"><span class="linenos">26</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parser_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">AbstractLogParser</span><span class="p">]):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="LogWatcher.__init__-26"><a href="#LogWatcher.__init__-26"><span class="linenos">26</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parser_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">AbstractLogParser</span><span class="p">]):</span>
 </span><span id="LogWatcher.__init__-27"><a href="#LogWatcher.__init__-27"><span class="linenos">27</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="LogWatcher.__init__-28"><a href="#LogWatcher.__init__-28"><span class="linenos">28</span></a><span class="sd">        Initialize the log watcher with a log file and a parser class.</span>
 </span><span id="LogWatcher.__init__-29"><a href="#LogWatcher.__init__-29"><span class="linenos">29</span></a>
@@ -804,7 +804,7 @@ inheritance.</p>
 
     </div>
     <a class="headerlink" href="#LogWatcher.update"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="LogWatcher.update-47"><a href="#LogWatcher.update-47"><span class="linenos">47</span></a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;advanced&quot;</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="LogWatcher.update-47"><a href="#LogWatcher.update-47"><span class="linenos">47</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;advanced&quot;</span><span class="p">):</span>
 </span><span id="LogWatcher.update-48"><a href="#LogWatcher.update-48"><span class="linenos">48</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="LogWatcher.update-49"><a href="#LogWatcher.update-49"><span class="linenos">49</span></a><span class="sd">        Update the log watcher using one of three strategies.</span>
 </span><span id="LogWatcher.update-50"><a href="#LogWatcher.update-50"><span class="linenos">50</span></a>
@@ -875,7 +875,7 @@ file is truncated.</p>
 
     </div>
     <a class="headerlink" href="#LogWatcher.simple_update"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="LogWatcher.simple_update-80"><a href="#LogWatcher.simple_update-80"><span class="linenos">80</span></a>    <span class="k">def</span> <span class="nf">simple_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="LogWatcher.simple_update-80"><a href="#LogWatcher.simple_update-80"><span class="linenos">80</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">simple_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="LogWatcher.simple_update-81"><a href="#LogWatcher.simple_update-81"><span class="linenos">81</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="LogWatcher.simple_update-82"><a href="#LogWatcher.simple_update-82"><span class="linenos">82</span></a><span class="sd">        Read the entire log file and reset the parser if the file size has changed.</span>
 </span><span id="LogWatcher.simple_update-83"><a href="#LogWatcher.simple_update-83"><span class="linenos">83</span></a>
@@ -910,7 +910,7 @@ called. This is simple, but slow for large log files.</p>
 
     </div>
     <a class="headerlink" href="#LogWatcher.naive_update"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="LogWatcher.naive_update-94"><a href="#LogWatcher.naive_update-94"><span class="linenos"> 94</span></a>    <span class="k">def</span> <span class="nf">naive_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="LogWatcher.naive_update-94"><a href="#LogWatcher.naive_update-94"><span class="linenos"> 94</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">naive_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="LogWatcher.naive_update-95"><a href="#LogWatcher.naive_update-95"><span class="linenos"> 95</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="LogWatcher.naive_update-96"><a href="#LogWatcher.naive_update-96"><span class="linenos"> 96</span></a><span class="sd">        Reset the parser and read the entire log file.</span>
 </span><span id="LogWatcher.naive_update-97"><a href="#LogWatcher.naive_update-97"><span class="linenos"> 97</span></a>
@@ -949,7 +949,7 @@ the case where the log file is truncated.</p>
 
     </div>
     <a class="headerlink" href="#LogWatcher.advanced_update"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="LogWatcher.advanced_update-112"><a href="#LogWatcher.advanced_update-112"><span class="linenos">112</span></a>    <span class="k">def</span> <span class="nf">advanced_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="LogWatcher.advanced_update-112"><a href="#LogWatcher.advanced_update-112"><span class="linenos">112</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">advanced_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="LogWatcher.advanced_update-113"><a href="#LogWatcher.advanced_update-113"><span class="linenos">113</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="LogWatcher.advanced_update-114"><a href="#LogWatcher.advanced_update-114"><span class="linenos">114</span></a><span class="sd">        Read only the new content from the log file.</span>
 </span><span id="LogWatcher.advanced_update-115"><a href="#LogWatcher.advanced_update-115"><span class="linenos">115</span></a>
@@ -1010,8 +1010,8 @@ entire file.</p>
 
     </div>
     <a class="headerlink" href="#VimGolfLogWatcher"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogWatcher-148"><a href="#VimGolfLogWatcher-148"><span class="linenos">148</span></a><span class="k">class</span> <span class="nc">VimGolfLogWatcher</span><span class="p">(</span><span class="n">LogWatcher</span><span class="p">):</span>
-</span><span id="VimGolfLogWatcher-149"><a href="#VimGolfLogWatcher-149"><span class="linenos">149</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">update_style</span><span class="o">=</span><span class="s2">&quot;advanced&quot;</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogWatcher-148"><a href="#VimGolfLogWatcher-148"><span class="linenos">148</span></a><span class="k">class</span><span class="w"> </span><span class="nc">VimGolfLogWatcher</span><span class="p">(</span><span class="n">LogWatcher</span><span class="p">):</span>
+</span><span id="VimGolfLogWatcher-149"><a href="#VimGolfLogWatcher-149"><span class="linenos">149</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">update_style</span><span class="o">=</span><span class="s2">&quot;advanced&quot;</span><span class="p">):</span>
 </span><span id="VimGolfLogWatcher-150"><a href="#VimGolfLogWatcher-150"><span class="linenos">150</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogWatcher-151"><a href="#VimGolfLogWatcher-151"><span class="linenos">151</span></a><span class="sd">        Initialize a VimGolfLogWatcher with a log file and an update style.</span>
 </span><span id="VimGolfLogWatcher-152"><a href="#VimGolfLogWatcher-152"><span class="linenos">152</span></a>
@@ -1030,7 +1030,7 @@ entire file.</p>
 </span><span id="VimGolfLogWatcher-165"><a href="#VimGolfLogWatcher-165"><span class="linenos">165</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="p">:</span> <span class="n">VimGolfLogParser</span>
 </span><span id="VimGolfLogWatcher-166"><a href="#VimGolfLogWatcher-166"><span class="linenos">166</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">update_style</span> <span class="o">=</span> <span class="n">update_style</span>
 </span><span id="VimGolfLogWatcher-167"><a href="#VimGolfLogWatcher-167"><span class="linenos">167</span></a>
-</span><span id="VimGolfLogWatcher-168"><a href="#VimGolfLogWatcher-168"><span class="linenos">168</span></a>    <span class="k">def</span> <span class="nf">default_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="VimGolfLogWatcher-168"><a href="#VimGolfLogWatcher-168"><span class="linenos">168</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">default_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="VimGolfLogWatcher-169"><a href="#VimGolfLogWatcher-169"><span class="linenos">169</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogWatcher-170"><a href="#VimGolfLogWatcher-170"><span class="linenos">170</span></a><span class="sd">        Call the update method with the default update style.</span>
 </span><span id="VimGolfLogWatcher-171"><a href="#VimGolfLogWatcher-171"><span class="linenos">171</span></a>
@@ -1043,7 +1043,7 @@ entire file.</p>
 </span><span id="VimGolfLogWatcher-178"><a href="#VimGolfLogWatcher-178"><span class="linenos">178</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">update_style</span><span class="p">)</span>
 </span><span id="VimGolfLogWatcher-179"><a href="#VimGolfLogWatcher-179"><span class="linenos">179</span></a>
 </span><span id="VimGolfLogWatcher-180"><a href="#VimGolfLogWatcher-180"><span class="linenos">180</span></a>    <span class="nd">@property</span>
-</span><span id="VimGolfLogWatcher-181"><a href="#VimGolfLogWatcher-181"><span class="linenos">181</span></a>    <span class="k">def</span> <span class="nf">success</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="VimGolfLogWatcher-181"><a href="#VimGolfLogWatcher-181"><span class="linenos">181</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">success</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="VimGolfLogWatcher-182"><a href="#VimGolfLogWatcher-182"><span class="linenos">182</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogWatcher-183"><a href="#VimGolfLogWatcher-183"><span class="linenos">183</span></a><span class="sd">        Check if the vimgolf challenge has been solved successfully.</span>
 </span><span id="VimGolfLogWatcher-184"><a href="#VimGolfLogWatcher-184"><span class="linenos">184</span></a>
@@ -1057,7 +1057,7 @@ entire file.</p>
 </span><span id="VimGolfLogWatcher-192"><a href="#VimGolfLogWatcher-192"><span class="linenos">192</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">default_update</span><span class="p">()</span>
 </span><span id="VimGolfLogWatcher-193"><a href="#VimGolfLogWatcher-193"><span class="linenos">193</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">success</span>
 </span><span id="VimGolfLogWatcher-194"><a href="#VimGolfLogWatcher-194"><span class="linenos">194</span></a>
-</span><span id="VimGolfLogWatcher-195"><a href="#VimGolfLogWatcher-195"><span class="linenos">195</span></a>    <span class="k">def</span> <span class="nf">get_best_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="VimGolfLogWatcher-195"><a href="#VimGolfLogWatcher-195"><span class="linenos">195</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_best_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="VimGolfLogWatcher-196"><a href="#VimGolfLogWatcher-196"><span class="linenos">196</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogWatcher-197"><a href="#VimGolfLogWatcher-197"><span class="linenos">197</span></a><span class="sd">        Return the best success result in the log watcher.</span>
 </span><span id="VimGolfLogWatcher-198"><a href="#VimGolfLogWatcher-198"><span class="linenos">198</span></a>
@@ -1071,7 +1071,7 @@ entire file.</p>
 </span><span id="VimGolfLogWatcher-206"><a href="#VimGolfLogWatcher-206"><span class="linenos">206</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">default_update</span><span class="p">()</span>
 </span><span id="VimGolfLogWatcher-207"><a href="#VimGolfLogWatcher-207"><span class="linenos">207</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">get_best_success_result</span><span class="p">()</span>
 </span><span id="VimGolfLogWatcher-208"><a href="#VimGolfLogWatcher-208"><span class="linenos">208</span></a>
-</span><span id="VimGolfLogWatcher-209"><a href="#VimGolfLogWatcher-209"><span class="linenos">209</span></a>    <span class="k">def</span> <span class="nf">get_last_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="VimGolfLogWatcher-209"><a href="#VimGolfLogWatcher-209"><span class="linenos">209</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_last_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="VimGolfLogWatcher-210"><a href="#VimGolfLogWatcher-210"><span class="linenos">210</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogWatcher-211"><a href="#VimGolfLogWatcher-211"><span class="linenos">211</span></a><span class="sd">        Return the last success result in the log watcher.</span>
 </span><span id="VimGolfLogWatcher-212"><a href="#VimGolfLogWatcher-212"><span class="linenos">212</span></a>
@@ -1086,7 +1086,7 @@ entire file.</p>
 </span><span id="VimGolfLogWatcher-221"><a href="#VimGolfLogWatcher-221"><span class="linenos">221</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">get_last_success_result</span><span class="p">()</span>
 </span><span id="VimGolfLogWatcher-222"><a href="#VimGolfLogWatcher-222"><span class="linenos">222</span></a>
 </span><span id="VimGolfLogWatcher-223"><a href="#VimGolfLogWatcher-223"><span class="linenos">223</span></a>    <span class="nd">@property</span>
-</span><span id="VimGolfLogWatcher-224"><a href="#VimGolfLogWatcher-224"><span class="linenos">224</span></a>    <span class="k">def</span> <span class="nf">results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="VimGolfLogWatcher-224"><a href="#VimGolfLogWatcher-224"><span class="linenos">224</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="VimGolfLogWatcher-225"><a href="#VimGolfLogWatcher-225"><span class="linenos">225</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogWatcher-226"><a href="#VimGolfLogWatcher-226"><span class="linenos">226</span></a><span class="sd">        The results of the vimgolf challenge environment.</span>
 </span><span id="VimGolfLogWatcher-227"><a href="#VimGolfLogWatcher-227"><span class="linenos">227</span></a>
@@ -1101,7 +1101,7 @@ entire file.</p>
 </span><span id="VimGolfLogWatcher-236"><a href="#VimGolfLogWatcher-236"><span class="linenos">236</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">results</span>
 </span><span id="VimGolfLogWatcher-237"><a href="#VimGolfLogWatcher-237"><span class="linenos">237</span></a>
 </span><span id="VimGolfLogWatcher-238"><a href="#VimGolfLogWatcher-238"><span class="linenos">238</span></a>    <span class="nd">@property</span>
-</span><span id="VimGolfLogWatcher-239"><a href="#VimGolfLogWatcher-239"><span class="linenos">239</span></a>    <span class="k">def</span> <span class="nf">success_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="VimGolfLogWatcher-239"><a href="#VimGolfLogWatcher-239"><span class="linenos">239</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">success_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="VimGolfLogWatcher-240"><a href="#VimGolfLogWatcher-240"><span class="linenos">240</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogWatcher-241"><a href="#VimGolfLogWatcher-241"><span class="linenos">241</span></a><span class="sd">        The successful results of the vimgolf challenge environment.</span>
 </span><span id="VimGolfLogWatcher-242"><a href="#VimGolfLogWatcher-242"><span class="linenos">242</span></a>
@@ -1130,7 +1130,7 @@ entire file.</p>
 
     </div>
     <a class="headerlink" href="#VimGolfLogWatcher.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogWatcher.__init__-149"><a href="#VimGolfLogWatcher.__init__-149"><span class="linenos">149</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">update_style</span><span class="o">=</span><span class="s2">&quot;advanced&quot;</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogWatcher.__init__-149"><a href="#VimGolfLogWatcher.__init__-149"><span class="linenos">149</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">update_style</span><span class="o">=</span><span class="s2">&quot;advanced&quot;</span><span class="p">):</span>
 </span><span id="VimGolfLogWatcher.__init__-150"><a href="#VimGolfLogWatcher.__init__-150"><span class="linenos">150</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogWatcher.__init__-151"><a href="#VimGolfLogWatcher.__init__-151"><span class="linenos">151</span></a><span class="sd">        Initialize a VimGolfLogWatcher with a log file and an update style.</span>
 </span><span id="VimGolfLogWatcher.__init__-152"><a href="#VimGolfLogWatcher.__init__-152"><span class="linenos">152</span></a>
@@ -1206,7 +1206,7 @@ reading VimGolf logs.</p>
 
     </div>
     <a class="headerlink" href="#VimGolfLogWatcher.default_update"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogWatcher.default_update-168"><a href="#VimGolfLogWatcher.default_update-168"><span class="linenos">168</span></a>    <span class="k">def</span> <span class="nf">default_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogWatcher.default_update-168"><a href="#VimGolfLogWatcher.default_update-168"><span class="linenos">168</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">default_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="VimGolfLogWatcher.default_update-169"><a href="#VimGolfLogWatcher.default_update-169"><span class="linenos">169</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogWatcher.default_update-170"><a href="#VimGolfLogWatcher.default_update-170"><span class="linenos">170</span></a><span class="sd">        Call the update method with the default update style.</span>
 </span><span id="VimGolfLogWatcher.default_update-171"><a href="#VimGolfLogWatcher.default_update-171"><span class="linenos">171</span></a>
@@ -1241,7 +1241,7 @@ constructor.</p>
     </div>
     <a class="headerlink" href="#VimGolfLogWatcher.success"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogWatcher.success-180"><a href="#VimGolfLogWatcher.success-180"><span class="linenos">180</span></a>    <span class="nd">@property</span>
-</span><span id="VimGolfLogWatcher.success-181"><a href="#VimGolfLogWatcher.success-181"><span class="linenos">181</span></a>    <span class="k">def</span> <span class="nf">success</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="VimGolfLogWatcher.success-181"><a href="#VimGolfLogWatcher.success-181"><span class="linenos">181</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">success</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="VimGolfLogWatcher.success-182"><a href="#VimGolfLogWatcher.success-182"><span class="linenos">182</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogWatcher.success-183"><a href="#VimGolfLogWatcher.success-183"><span class="linenos">183</span></a><span class="sd">        Check if the vimgolf challenge has been solved successfully.</span>
 </span><span id="VimGolfLogWatcher.success-184"><a href="#VimGolfLogWatcher.success-184"><span class="linenos">184</span></a>
@@ -1283,7 +1283,7 @@ checking the success status.</p>
 
     </div>
     <a class="headerlink" href="#VimGolfLogWatcher.get_best_success_result"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogWatcher.get_best_success_result-195"><a href="#VimGolfLogWatcher.get_best_success_result-195"><span class="linenos">195</span></a>    <span class="k">def</span> <span class="nf">get_best_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogWatcher.get_best_success_result-195"><a href="#VimGolfLogWatcher.get_best_success_result-195"><span class="linenos">195</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_best_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="VimGolfLogWatcher.get_best_success_result-196"><a href="#VimGolfLogWatcher.get_best_success_result-196"><span class="linenos">196</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogWatcher.get_best_success_result-197"><a href="#VimGolfLogWatcher.get_best_success_result-197"><span class="linenos">197</span></a><span class="sd">        Return the best success result in the log watcher.</span>
 </span><span id="VimGolfLogWatcher.get_best_success_result-198"><a href="#VimGolfLogWatcher.get_best_success_result-198"><span class="linenos">198</span></a>
@@ -1325,7 +1325,7 @@ updating the log watcher if necessary before returning the result.</p>
 
     </div>
     <a class="headerlink" href="#VimGolfLogWatcher.get_last_success_result"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogWatcher.get_last_success_result-209"><a href="#VimGolfLogWatcher.get_last_success_result-209"><span class="linenos">209</span></a>    <span class="k">def</span> <span class="nf">get_last_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogWatcher.get_last_success_result-209"><a href="#VimGolfLogWatcher.get_last_success_result-209"><span class="linenos">209</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_last_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="VimGolfLogWatcher.get_last_success_result-210"><a href="#VimGolfLogWatcher.get_last_success_result-210"><span class="linenos">210</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogWatcher.get_last_success_result-211"><a href="#VimGolfLogWatcher.get_last_success_result-211"><span class="linenos">211</span></a><span class="sd">        Return the last success result in the log watcher.</span>
 </span><span id="VimGolfLogWatcher.get_last_success_result-212"><a href="#VimGolfLogWatcher.get_last_success_result-212"><span class="linenos">212</span></a>
@@ -1366,7 +1366,7 @@ updating the log watcher if necessary before returning the result.</p>
     </div>
     <a class="headerlink" href="#VimGolfLogWatcher.results"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogWatcher.results-223"><a href="#VimGolfLogWatcher.results-223"><span class="linenos">223</span></a>    <span class="nd">@property</span>
-</span><span id="VimGolfLogWatcher.results-224"><a href="#VimGolfLogWatcher.results-224"><span class="linenos">224</span></a>    <span class="k">def</span> <span class="nf">results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="VimGolfLogWatcher.results-224"><a href="#VimGolfLogWatcher.results-224"><span class="linenos">224</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="VimGolfLogWatcher.results-225"><a href="#VimGolfLogWatcher.results-225"><span class="linenos">225</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogWatcher.results-226"><a href="#VimGolfLogWatcher.results-226"><span class="linenos">226</span></a><span class="sd">        The results of the vimgolf challenge environment.</span>
 </span><span id="VimGolfLogWatcher.results-227"><a href="#VimGolfLogWatcher.results-227"><span class="linenos">227</span></a>
@@ -1407,7 +1407,7 @@ updating the log watcher if necessary before returning the results.</p>
     </div>
     <a class="headerlink" href="#VimGolfLogWatcher.success_results"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogWatcher.success_results-238"><a href="#VimGolfLogWatcher.success_results-238"><span class="linenos">238</span></a>    <span class="nd">@property</span>
-</span><span id="VimGolfLogWatcher.success_results-239"><a href="#VimGolfLogWatcher.success_results-239"><span class="linenos">239</span></a>    <span class="k">def</span> <span class="nf">success_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="VimGolfLogWatcher.success_results-239"><a href="#VimGolfLogWatcher.success_results-239"><span class="linenos">239</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">success_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="VimGolfLogWatcher.success_results-240"><a href="#VimGolfLogWatcher.success_results-240"><span class="linenos">240</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogWatcher.success_results-241"><a href="#VimGolfLogWatcher.success_results-241"><span class="linenos">241</span></a><span class="sd">        The successful results of the vimgolf challenge environment.</span>
 </span><span id="VimGolfLogWatcher.success_results-242"><a href="#VimGolfLogWatcher.success_results-242"><span class="linenos">242</span></a>
@@ -1468,8 +1468,8 @@ results.</p>
 
     </div>
     <a class="headerlink" href="#VimGolfLogParser"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogParser-255"><a href="#VimGolfLogParser-255"><span class="linenos">255</span></a><span class="k">class</span> <span class="nc">VimGolfLogParser</span><span class="p">(</span><span class="n">AbstractLogParser</span><span class="p">):</span>
-</span><span id="VimGolfLogParser-256"><a href="#VimGolfLogParser-256"><span class="linenos">256</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogParser-255"><a href="#VimGolfLogParser-255"><span class="linenos">255</span></a><span class="k">class</span><span class="w"> </span><span class="nc">VimGolfLogParser</span><span class="p">(</span><span class="n">AbstractLogParser</span><span class="p">):</span>
+</span><span id="VimGolfLogParser-256"><a href="#VimGolfLogParser-256"><span class="linenos">256</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="VimGolfLogParser-257"><a href="#VimGolfLogParser-257"><span class="linenos">257</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogParser-258"><a href="#VimGolfLogParser-258"><span class="linenos">258</span></a><span class="sd">        Initialize the VimGolfLogParser.</span>
 </span><span id="VimGolfLogParser-259"><a href="#VimGolfLogParser-259"><span class="linenos">259</span></a>
@@ -1477,7 +1477,7 @@ results.</p>
 </span><span id="VimGolfLogParser-261"><a href="#VimGolfLogParser-261"><span class="linenos">261</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="VimGolfLogParser-262"><a href="#VimGolfLogParser-262"><span class="linenos">262</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">VimGolfEnvResult</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 </span><span id="VimGolfLogParser-263"><a href="#VimGolfLogParser-263"><span class="linenos">263</span></a>
-</span><span id="VimGolfLogParser-264"><a href="#VimGolfLogParser-264"><span class="linenos">264</span></a>    <span class="k">def</span> <span class="nf">feed_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="VimGolfLogParser-264"><a href="#VimGolfLogParser-264"><span class="linenos">264</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">feed_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 </span><span id="VimGolfLogParser-265"><a href="#VimGolfLogParser-265"><span class="linenos">265</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogParser-266"><a href="#VimGolfLogParser-266"><span class="linenos">266</span></a><span class="sd">        Feed a line to the parser.</span>
 </span><span id="VimGolfLogParser-267"><a href="#VimGolfLogParser-267"><span class="linenos">267</span></a>
@@ -1506,7 +1506,7 @@ results.</p>
 </span><span id="VimGolfLogParser-290"><a href="#VimGolfLogParser-290"><span class="linenos">290</span></a>            <span class="o">...</span>
 </span><span id="VimGolfLogParser-291"><a href="#VimGolfLogParser-291"><span class="linenos">291</span></a>
 </span><span id="VimGolfLogParser-292"><a href="#VimGolfLogParser-292"><span class="linenos">292</span></a>    <span class="nd">@property</span>
-</span><span id="VimGolfLogParser-293"><a href="#VimGolfLogParser-293"><span class="linenos">293</span></a>    <span class="k">def</span> <span class="nf">success_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="VimGolfLogParser-293"><a href="#VimGolfLogParser-293"><span class="linenos">293</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">success_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="VimGolfLogParser-294"><a href="#VimGolfLogParser-294"><span class="linenos">294</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogParser-295"><a href="#VimGolfLogParser-295"><span class="linenos">295</span></a><span class="sd">        The successful results of the vimgolf challenge environment.</span>
 </span><span id="VimGolfLogParser-296"><a href="#VimGolfLogParser-296"><span class="linenos">296</span></a>
@@ -1521,7 +1521,7 @@ results.</p>
 </span><span id="VimGolfLogParser-305"><a href="#VimGolfLogParser-305"><span class="linenos">305</span></a>        <span class="k">return</span> <span class="p">[</span><span class="n">it</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="k">if</span> <span class="n">it</span><span class="o">.</span><span class="n">correct</span><span class="p">]</span>
 </span><span id="VimGolfLogParser-306"><a href="#VimGolfLogParser-306"><span class="linenos">306</span></a>
 </span><span id="VimGolfLogParser-307"><a href="#VimGolfLogParser-307"><span class="linenos">307</span></a>    <span class="nd">@property</span>
-</span><span id="VimGolfLogParser-308"><a href="#VimGolfLogParser-308"><span class="linenos">308</span></a>    <span class="k">def</span> <span class="nf">success</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="VimGolfLogParser-308"><a href="#VimGolfLogParser-308"><span class="linenos">308</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">success</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="VimGolfLogParser-309"><a href="#VimGolfLogParser-309"><span class="linenos">309</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogParser-310"><a href="#VimGolfLogParser-310"><span class="linenos">310</span></a><span class="sd">        Check if the vimgolf challenge has been solved successfully.</span>
 </span><span id="VimGolfLogParser-311"><a href="#VimGolfLogParser-311"><span class="linenos">311</span></a>
@@ -1534,7 +1534,7 @@ results.</p>
 </span><span id="VimGolfLogParser-318"><a href="#VimGolfLogParser-318"><span class="linenos">318</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="VimGolfLogParser-319"><a href="#VimGolfLogParser-319"><span class="linenos">319</span></a>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">success_results</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span>
 </span><span id="VimGolfLogParser-320"><a href="#VimGolfLogParser-320"><span class="linenos">320</span></a>
-</span><span id="VimGolfLogParser-321"><a href="#VimGolfLogParser-321"><span class="linenos">321</span></a>    <span class="k">def</span> <span class="nf">get_last_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="VimGolfLogParser-321"><a href="#VimGolfLogParser-321"><span class="linenos">321</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_last_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="VimGolfLogParser-322"><a href="#VimGolfLogParser-322"><span class="linenos">322</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogParser-323"><a href="#VimGolfLogParser-323"><span class="linenos">323</span></a><span class="sd">        Return the last success result in the log watcher.</span>
 </span><span id="VimGolfLogParser-324"><a href="#VimGolfLogParser-324"><span class="linenos">324</span></a>
@@ -1549,7 +1549,7 @@ results.</p>
 </span><span id="VimGolfLogParser-333"><a href="#VimGolfLogParser-333"><span class="linenos">333</span></a>        <span class="k">if</span> <span class="n">success_results</span><span class="p">:</span>
 </span><span id="VimGolfLogParser-334"><a href="#VimGolfLogParser-334"><span class="linenos">334</span></a>            <span class="k">return</span> <span class="n">success_results</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 </span><span id="VimGolfLogParser-335"><a href="#VimGolfLogParser-335"><span class="linenos">335</span></a>
-</span><span id="VimGolfLogParser-336"><a href="#VimGolfLogParser-336"><span class="linenos">336</span></a>    <span class="k">def</span> <span class="nf">get_best_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="VimGolfLogParser-336"><a href="#VimGolfLogParser-336"><span class="linenos">336</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_best_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="VimGolfLogParser-337"><a href="#VimGolfLogParser-337"><span class="linenos">337</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the result with the lowest score&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogParser-338"><a href="#VimGolfLogParser-338"><span class="linenos">338</span></a>        <span class="n">success_results</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">success_results</span><span class="p">)</span>
 </span><span id="VimGolfLogParser-339"><a href="#VimGolfLogParser-339"><span class="linenos">339</span></a>        <span class="k">if</span> <span class="n">success_results</span><span class="p">:</span>
@@ -1573,7 +1573,7 @@ inheritance.</p>
 
     </div>
     <a class="headerlink" href="#VimGolfLogParser.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogParser.__init__-256"><a href="#VimGolfLogParser.__init__-256"><span class="linenos">256</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogParser.__init__-256"><a href="#VimGolfLogParser.__init__-256"><span class="linenos">256</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="VimGolfLogParser.__init__-257"><a href="#VimGolfLogParser.__init__-257"><span class="linenos">257</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogParser.__init__-258"><a href="#VimGolfLogParser.__init__-258"><span class="linenos">258</span></a><span class="sd">        Initialize the VimGolfLogParser.</span>
 </span><span id="VimGolfLogParser.__init__-259"><a href="#VimGolfLogParser.__init__-259"><span class="linenos">259</span></a>
@@ -1612,7 +1612,7 @@ inheritance.</p>
 
     </div>
     <a class="headerlink" href="#VimGolfLogParser.feed_line"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogParser.feed_line-264"><a href="#VimGolfLogParser.feed_line-264"><span class="linenos">264</span></a>    <span class="k">def</span> <span class="nf">feed_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogParser.feed_line-264"><a href="#VimGolfLogParser.feed_line-264"><span class="linenos">264</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">feed_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 </span><span id="VimGolfLogParser.feed_line-265"><a href="#VimGolfLogParser.feed_line-265"><span class="linenos">265</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogParser.feed_line-266"><a href="#VimGolfLogParser.feed_line-266"><span class="linenos">266</span></a><span class="sd">        Feed a line to the parser.</span>
 </span><span id="VimGolfLogParser.feed_line-267"><a href="#VimGolfLogParser.feed_line-267"><span class="linenos">267</span></a>
@@ -1673,7 +1673,7 @@ have the correct structure, the line will be ignored.</p>
     </div>
     <a class="headerlink" href="#VimGolfLogParser.success_results"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogParser.success_results-292"><a href="#VimGolfLogParser.success_results-292"><span class="linenos">292</span></a>    <span class="nd">@property</span>
-</span><span id="VimGolfLogParser.success_results-293"><a href="#VimGolfLogParser.success_results-293"><span class="linenos">293</span></a>    <span class="k">def</span> <span class="nf">success_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="VimGolfLogParser.success_results-293"><a href="#VimGolfLogParser.success_results-293"><span class="linenos">293</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">success_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="VimGolfLogParser.success_results-294"><a href="#VimGolfLogParser.success_results-294"><span class="linenos">294</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogParser.success_results-295"><a href="#VimGolfLogParser.success_results-295"><span class="linenos">295</span></a><span class="sd">        The successful results of the vimgolf challenge environment.</span>
 </span><span id="VimGolfLogParser.success_results-296"><a href="#VimGolfLogParser.success_results-296"><span class="linenos">296</span></a>
@@ -1715,7 +1715,7 @@ correct attribute is True.</p>
     </div>
     <a class="headerlink" href="#VimGolfLogParser.success"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogParser.success-307"><a href="#VimGolfLogParser.success-307"><span class="linenos">307</span></a>    <span class="nd">@property</span>
-</span><span id="VimGolfLogParser.success-308"><a href="#VimGolfLogParser.success-308"><span class="linenos">308</span></a>    <span class="k">def</span> <span class="nf">success</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="VimGolfLogParser.success-308"><a href="#VimGolfLogParser.success-308"><span class="linenos">308</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">success</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="VimGolfLogParser.success-309"><a href="#VimGolfLogParser.success-309"><span class="linenos">309</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogParser.success-310"><a href="#VimGolfLogParser.success-310"><span class="linenos">310</span></a><span class="sd">        Check if the vimgolf challenge has been solved successfully.</span>
 </span><span id="VimGolfLogParser.success-311"><a href="#VimGolfLogParser.success-311"><span class="linenos">311</span></a>
@@ -1756,7 +1756,7 @@ the results list, and False otherwise.</p>
 
     </div>
     <a class="headerlink" href="#VimGolfLogParser.get_last_success_result"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogParser.get_last_success_result-321"><a href="#VimGolfLogParser.get_last_success_result-321"><span class="linenos">321</span></a>    <span class="k">def</span> <span class="nf">get_last_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogParser.get_last_success_result-321"><a href="#VimGolfLogParser.get_last_success_result-321"><span class="linenos">321</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_last_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="VimGolfLogParser.get_last_success_result-322"><a href="#VimGolfLogParser.get_last_success_result-322"><span class="linenos">322</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogParser.get_last_success_result-323"><a href="#VimGolfLogParser.get_last_success_result-323"><span class="linenos">323</span></a><span class="sd">        Return the last success result in the log watcher.</span>
 </span><span id="VimGolfLogParser.get_last_success_result-324"><a href="#VimGolfLogParser.get_last_success_result-324"><span class="linenos">324</span></a>
@@ -1799,7 +1799,7 @@ which is the last result in the success_results list.</p>
 
     </div>
     <a class="headerlink" href="#VimGolfLogParser.get_best_success_result"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogParser.get_best_success_result-336"><a href="#VimGolfLogParser.get_best_success_result-336"><span class="linenos">336</span></a>    <span class="k">def</span> <span class="nf">get_best_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="VimGolfLogParser.get_best_success_result-336"><a href="#VimGolfLogParser.get_best_success_result-336"><span class="linenos">336</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_best_success_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="VimGolfLogParser.get_best_success_result-337"><a href="#VimGolfLogParser.get_best_success_result-337"><span class="linenos">337</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the result with the lowest score&quot;&quot;&quot;</span>
 </span><span id="VimGolfLogParser.get_best_success_result-338"><a href="#VimGolfLogParser.get_best_success_result-338"><span class="linenos">338</span></a>        <span class="n">success_results</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">success_results</span><span class="p">)</span>
 </span><span id="VimGolfLogParser.get_best_success_result-339"><a href="#VimGolfLogParser.get_best_success_result-339"><span class="linenos">339</span></a>        <span class="k">if</span> <span class="n">success_results</span><span class="p">:</span>
