@@ -5,6 +5,8 @@ Vimgolf API wrapper
 # TODO: convert vimgolf keys to terminal input string, and convert terminal input string to vimgolf keys
 # TODO: figure out if the vim -w recorded things are the same as terminal input string
 
+# TODO: figure out the action space of all three input representations
+
 import argparse
 import json
 import logging

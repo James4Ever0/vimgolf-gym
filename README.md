@@ -5,6 +5,12 @@
 
 <!-- TODO: create a dedicated cybergod_vimgolf_gym docker image, separate from cybergod_worker_terminal and so on -->
 
+<!-- TODO: use worst human submission to calculate relative score -->
+<!-- TODO: calculate overall score for multiple challenges as benchmark result -->
+
+<!-- formula: estimated_worst_solution_score = human_worst_solution_score ? (string_length_of_output + 10) -->
+<!-- relative_inverse_score = estimated_worst_solution_score / agent_score (the higher the better)  -->
+
 <div>
 <p align="center"><h1 align="center">vimgolf-gym</h1></p>
 <p align="center">OpenAI gym like, customizable environment and benchmark for Vimgolf.</p>
@@ -16,6 +22,7 @@
 <a href="https://pepy.tech/projects/vimgolf-gym"><img src="https://static.pepy.tech/badge/vimgolf-gym" alt="PyPI Downloads"></a>
 <a href="https://github.com/james4ever0/vimgolf-gym"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 <a href="https://huggingface.co/datasets/James4Ever0/vimgolf_challenges_and_solutions"><img alt="Vimgolf public challenge dataset" src="https://img.shields.io/badge/🤗-HuggingFace-blue"></a>
+<a href="https://hub.docker.com/r/agile4im/cybergod_vimgolf_gym"><img alt="Docker image: agile4im/cybergod_vimgolf_gym" src="https://img.shields.io/badge/dockerhub-gray?logo=docker"></a>
 </p>
 </div>
 
