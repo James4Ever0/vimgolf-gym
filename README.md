@@ -246,6 +246,12 @@ env.close()
 # verify a solution by its keys, in vimgolf style
 success = env.verify_keys("ihello world<NL>hello world<Esc>:wq<NL>")
 
+# calculate relative inverse score directly
+relative_inverse_score = env.calculate_relative_inverse_score(score=100)
+
+# or if you have a known worst score
+relative_inverse_score = env.calculate_relative_inverse_score(score=100, worst_score=200)
+
 # if you want to close the environment automatically
 with vimgolf_gym.make(env_name) as env:
     # take an action, in raw string
