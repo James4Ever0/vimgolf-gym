@@ -725,3 +725,20 @@ class VimGolfEnv:
             if os.path.exists(self.log_file):
                 os.remove(self.log_file)
             setattr(self, "executor", None)
+
+    def calculate_relative_inverse_score(self, score:int, worst_score:typing.Optional[int] =None):
+        """Calculate the relative inverse score of the given score
+        
+        Args:
+            score (int): The score to calculate the relative inverse score of.
+            worst_score (int, optional): The worst score to use. Defaults to None.
+
+        Returns:
+            float: The relative inverse score.
+        """
+        assert score >= 0, "Score must be non-negative"
+        if worst_score is None:
+            with open(self.output_file, "r") as f:
+                worst_score = len(f.read()) + 10
+        ret = worst_score / score
+        return ret

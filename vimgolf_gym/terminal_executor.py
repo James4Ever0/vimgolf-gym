@@ -5,6 +5,7 @@ Code source: [terminal_asciicast_record_executor.py](https://github.com/James4Ev
 """
 
 # pending pypi project name: termexec
+# if you want to release this code as a pypi package, you must create a through unit test, across launching terminal, docker container, network requests, etc. focus on the effectiveness of clean-up, and the ability to handle exceptions.
 
 import threading
 import time
