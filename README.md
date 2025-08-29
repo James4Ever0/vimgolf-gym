@@ -272,6 +272,33 @@ with vimgolf_gym.make(env_name) as env:
         result: vimgolf_gym.dataclasses.VimGolfEnvResult = env.get_last_success_result()
 ```
 
+An example custom challenge in yaml:
+
+```yaml
+input: |
+    The second line
+    The first line
+output: |
+    The first line
+    The second line
+name: Swap lines
+description: Swap the first and second lines of the input
+solution: null
+```
+
+You can load the challenge with:
+
+```python
+import yaml
+import vimgolf_gym.dataclasses
+
+input_file = "<path to your challenge file>"
+with open(input_file, "r") as f:
+    yaml_string = f.read()
+yaml_obj = yaml.safe_load(yaml_string)
+custom_challenge = vimgolf_gym.dataclasses.VimGolfCustomChallenge.parse_obj(yaml_obj)
+```
+
 The local challenges are stored in `~/.cache/cybergod-vimgolf-challenges/`.
 
 If you want to learn more about the local challenges, use the following code:

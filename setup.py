@@ -60,7 +60,7 @@ setup(
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",  # Choose an appropriate license
+        "License :: OSI Approved :: The Unlicense",  # Choose an appropriate license
         "Operating System :: OS Independent",
     ],
     python_requires=">=3.8",  # Specify required Python version

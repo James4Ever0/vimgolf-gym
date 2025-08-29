@@ -483,6 +483,13 @@ class VimGolfEnv:
             self.output_file
         ), f"Output file {self.output_file} does not exist."
 
+        # check if the content of the input file is different from the output file
+        with open(self.input_file, "rb") as f:
+            _input_content = f.read()
+        with open(self.output_file, "rb") as f:
+            _output_content = f.read()
+        assert _input_content != _output_content, "Input file and output file cannot be the same."
+
         # TODO: run a modified version of vimgolf local python script writing progress to a jsonl file, which embeds in this script, for easy state inspection and data collection (we can create a temporary directory for cleanup)
         self.log_directory = tempfile.TemporaryDirectory()
         """the log directory, where tempfiles stored"""
