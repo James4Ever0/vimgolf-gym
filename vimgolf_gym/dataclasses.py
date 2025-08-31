@@ -22,9 +22,9 @@ class VimGolfCustomChallenge(BaseModel):
     """
     input: str
     output: str
-    name: Optional[str]
-    description: Optional[str]
-    solution: Optional[str]
+    name: Optional[str] = None
+    description: Optional[str] = None
+    solution: Optional[str] = None
 
 
 class VimGolfEnvResult(BaseModel):
