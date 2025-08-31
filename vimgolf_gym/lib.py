@@ -64,7 +64,7 @@ class DatasetInitError(Exception):
     pass
 
 
-def assert_challenge_id_length(challenge_id: str) -> bool:
+def assert_challenge_id_length(challenge_id: str):
     """Assert the challenge_id length to be 24"""
     assert len(challenge_id) == 24
 
@@ -113,7 +113,7 @@ def make(
             custom_challenge
         ), "custom_challenge must be provided for vimgolf-custom environment"
         env = make_env_with_text(
-            input=custom_challenge.input, output=custom_challenge.output
+            input_text=custom_challenge.input, output_text=custom_challenge.output
         )
     elif env_name.startswith("vimgolf-local-"):
         challenge_id = env_name[len("vimgolf-local-") :]
@@ -137,7 +137,7 @@ def make_test() -> "VimGolfEnv":
     """
     input_text = ""
     output_text = "hello world\nhello world\n"
-    return make_env_with_text(input_text, output_text)
+    return make_env_with_text(input_text=input_text, output_text=output_text)
 
 
 def make_env_with_text(input_text: str, output_text: str) -> "VimGolfEnv":

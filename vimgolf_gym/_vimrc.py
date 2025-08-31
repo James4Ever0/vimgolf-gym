@@ -10,7 +10,8 @@ _VIMGOLF_VIMRC_FILEPATH = os.path.join(
 _CYBERGOD_VIMGOLF_CONFIG_TMPDIR = tempfile.TemporaryDirectory()
 atexit.register(_CYBERGOD_VIMGOLF_CONFIG_TMPDIR.cleanup)
 
-def _prepare_vimrc_content_with_buffer_file(buffer_file:str):
+
+def _prepare_vimrc_content_with_buffer_file(buffer_file: str):
     buffer_file = os.path.abspath(buffer_file)
     ret = f"""
 " http://vimdoc.sourceforge.net/htmldoc/starting.html#vimrc
@@ -50,10 +51,21 @@ autocmd TextChanged,TextChangedI * write! {buffer_file}
 """
     return ret
 
-_CYBERGOD_VIMGOLF_VIMRC_FILEPATH = os.path.join(_CYBERGOD_VIMGOLF_CONFIG_TMPDIR.name, "cybergod_vimgolf.vimrc")
 
-def _prepare_cybergod_vimrc_with_buffer_file(buffer_file:str):
+_CYBERGOD_VIMGOLF_VIMRC_FILEPATH = os.path.join(
+    _CYBERGOD_VIMGOLF_CONFIG_TMPDIR.name, "cybergod_vimgolf.vimrc"
+)
+
+
+def _prepare_cybergod_vimrc_with_buffer_file(buffer_file: str):
     content = _prepare_vimrc_content_with_buffer_file(buffer_file)
 
-    with open(_CYBERGOD_VIMGOLF_VIMRC_FILEPATH, 'w+') as f:
+    with open(_CYBERGOD_VIMGOLF_VIMRC_FILEPATH, "w+") as f:
         f.write(content)
+
+
+__all__ = [
+    "_CYBERGOD_VIMGOLF_VIMRC_FILEPATH",
+    "_prepare_cybergod_vimrc_with_buffer_file",
+    "_VIMGOLF_VIMRC_FILEPATH",
+]

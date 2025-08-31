@@ -161,13 +161,13 @@ def parse_public_solution_header(input_str: str) -> VimGolfParsedPublicSolutionH
 
     # Create a datetime object and format the timestamp
     dt = datetime(full_year, month, day, hour, minute)
-    timestamp = dt.strftime("%Y-%m-%d %H:%M:%S")
+    # timestamp = dt.strftime("%Y-%m-%d %H:%M:%S")
 
     ret = VimGolfParsedPublicSolutionHeader(
         rank=parsed_data["rank"],
         score=parsed_data["score"],
         user_name=parsed_data["user_name"],
         user_id=parsed_data["user_id"],
-        date=timestamp,
+        date=dt,
     )
     return ret
