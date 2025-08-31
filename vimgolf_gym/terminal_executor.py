@@ -269,6 +269,12 @@ class TerminalExecutor:
         if not self._closing:
             self._closing = True
             self.terminal.close()
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc, value, tb):
+        self.close()
 
 
 def test_harmless_command_locally_with_bash():
