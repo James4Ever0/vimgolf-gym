@@ -23,6 +23,7 @@
 <a href="https://github.com/james4ever0/vimgolf-gym"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 <a href="https://huggingface.co/datasets/James4Ever0/vimgolf_challenges_and_solutions"><img alt="Vimgolf public challenge dataset" src="https://img.shields.io/badge/🤗-HuggingFace-blue"></a>
 <a href="https://hub.docker.com/r/agile4im/cybergod_vimgolf_gym"><img alt="Docker image: agile4im/cybergod_vimgolf_gym" src="https://img.shields.io/badge/dockerhub-gray?logo=docker"></a>
+<a href="https://www.benchflow.ai/benchmarks/James4ever0/Vimgolf"><img alt="Benchflow" src="https://img.shields.io/badge/Benchflow-blueviolet"></a>
 </p>
 </div>
 
