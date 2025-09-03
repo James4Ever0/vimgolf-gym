@@ -84,7 +84,7 @@ def run_vimgolf_validator(
     solution_keys = custom_challenge.solution
 
     cmd = shlex.split(
-        "docker run --rm --entrypoint /usr/bin/python3 agile4im/vimgolf-verifier:v0.0.1 /vimgolf-verifier.py single_shot"
+        "docker run --rm --entrypoint /usr/bin/python3 --network=none agile4im/vimgolf-verifier:v0.0.1 /vimgolf-verifier.py single_shot"
     ) + ["--input_content", input_content, "--solution_keys", solution_keys]
     try:
         output = subprocess.check_output(cmd, timeout=15)
