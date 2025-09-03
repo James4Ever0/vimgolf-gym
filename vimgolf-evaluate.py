@@ -35,9 +35,10 @@ def prepare_input(
 
 
 class Evaluator:
-    def __init__(self, solution_format, jsonl_file):
+    def __init__(self, solution_format: str, jsonl_file: str, use_docker: bool):
         self.solution_format = solution_format
         self.jsonl_file = jsonl_file
+        self.use_docker = use_docker
 
     def evaluate(self) -> list[bool]:
         results = []
@@ -58,7 +59,9 @@ class Evaluator:
 
             if custom_challenge.solution:
                 with vimgolf_gym.make(
-                    "vimgolf-custom", custom_challenge=custom_challenge
+                    "vimgolf-custom",
+                    custom_challenge=custom_challenge,
+                    use_docker=self.use_docker,
                 ) as env:
                     validated = env.verify_keys(custom_challenge.solution)
             else:
@@ -99,12 +102,22 @@ def main():
         type=str,
         help="Path to the JSONL file containing the VimGolf solutions.",
     )
+    parser.add_argument(
+        "--use-docker",
+        action="store_true",
+        help="Use Docker to run the VimGolf challenges for isolation.",
+    )
     args = parser.parse_args()
 
     solution_format = args.solution_format
     jsonl_filepath = args.jsonl_file
+    use_docker = args.use_docker
 
-    evaluator = Evaluator(solution_format, jsonl_filepath)
+    evaluator = Evaluator(
+        solution_format=solution_format,
+        jsonl_file=jsonl_filepath,
+        use_docker=use_docker,
+    )
     results = evaluator.evaluate()
     stats = calculate_stats(results)
     print("Statistics:")
