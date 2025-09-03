@@ -338,6 +338,22 @@ If you want to obtain online challenge ids, you have a few options:
    - Install: `pip3 install vimgolf`
    - Run: `vimgolf list`
 
+## Evaluation
+
+We provide a simple evaluation script `vimgolf-evaluate.py` that can be used to evaluate the performance in batch. The script takes a JSONL file and the format name of the file as input and returns the overall score of the batch.
+
+Before running the script, you need to install dependencies:
+
+```bash
+pip3 install vimgolf-gym==0.1.1
+```
+
+To evaluate the output from [terminal-bench adaptor](https://github.com/James4Ever0/terminal-bench/tree/vimgolf-comparison), you can use the following command:
+
+```bash
+python3 vimgolf-evaluate.py --solution-format terminal-bench-adaptor --jsonl-file "<solution-result>.jsonl"
+```
+
 ## License
 
 The Unlicense
