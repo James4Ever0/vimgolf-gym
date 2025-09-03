@@ -351,7 +351,7 @@ pip3 install vimgolf-gym==0.1.1
 To evaluate the output from [terminal-bench adaptor](https://github.com/James4Ever0/terminal-bench/tree/vimgolf-comparison), you can use the following command:
 
 ```bash
-python3 vimgolf-evaluate.py --solution-format terminal-bench-adaptor --jsonl-file "<solution-result>.jsonl"
+python3 vimgolf-evaluate.py --solution-format terminal-bench-adaptor --jsonl-file "<solution-result>.jsonl" --validator vimgolf-validator
 ```
 
 ## License

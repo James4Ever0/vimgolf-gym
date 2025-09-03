@@ -4,9 +4,11 @@ import vimgolf_gym.lib
 import json
 import argparse
 import pydantic
-
-# need evaluation format for parsing: terminal-bench-adaptor
-# need jsonl filepath
+import hashlib
+import shlex
+import subprocess
+import shutil
+import os
 
 
 class TerminalBenchAdaptorSolution(pydantic.BaseModel):
@@ -34,11 +36,81 @@ def prepare_input(
         raise ValueError(f"Unknown solution format: {solution_format}")
 
 
+def run_vimgolf_local(custom_challenge: vimgolf_gym.dataclasses.VimGolfCustomChallenge):
+    validated = False
+    with vimgolf_gym.make(
+        "vimgolf-custom",
+        custom_challenge=custom_challenge,
+    ) as env:
+        validated = env.verify_keys(custom_challenge.solution)
+    return validated
+
+
+def run_vimgolf_docker(
+    custom_challenge: vimgolf_gym.dataclasses.VimGolfCustomChallenge,
+):
+    validated = False
+    with vimgolf_gym.make(
+        "vimgolf-custom", custom_challenge=custom_challenge, use_docker=True
+    ) as env:
+        validated = env.verify_keys(custom_challenge.solution)
+    return validated
+
+
+def sha256_checksum(content: str) -> str:
+    sha256 = hashlib.sha256()
+    sha256.update(content.encode("utf-8"))
+    return sha256.hexdigest()
+
+
+def assert_docker_privilege():
+    assert shutil.which("docker"), "Docker not found in PATH"
+    # assert user is in docker group or has permission to run docker without sudo
+    assert (
+        os.geteuid() == 0
+        or subprocess.run(["groups"], capture_output=True, text=True).stdout.find(
+            "docker"
+        )
+        != -1
+    ), "User does not have permission to run Docker commands"
+
+
+def run_vimgolf_validator(
+    custom_challenge: vimgolf_gym.dataclasses.VimGolfCustomChallenge,
+):
+    validated = False
+    input_content = custom_challenge.input
+    output_content = custom_challenge.output
+    solution_keys = custom_challenge.solution
+
+    cmd = shlex.split(
+        "docker run --rm --entrypoint /usr/bin/python3 agile4im/vimgolf-verifier:v0.0.1 /vimgolf-verifier.py single_shot"
+    ) + ["--input_content", input_content, "--solution_keys", solution_keys]
+    try:
+        output = subprocess.check_output(cmd, timeout=15)
+        output = json.loads(output)
+        checksum_server = output["checksum"]
+        checksum_output = sha256_checksum(output_content)
+        validated = checksum_server == checksum_output
+    except subprocess.CalledProcessError:
+        pass
+    except subprocess.TimeoutExpired:
+        pass
+    except json.JSONDecodeError:
+        pass
+    except KeyError:
+        pass
+    return validated
+
+
 class Evaluator:
-    def __init__(self, solution_format: str, jsonl_file: str, use_docker: bool):
+    def __init__(self, solution_format: str, jsonl_file: str, validator: str):
         self.solution_format = solution_format
         self.jsonl_file = jsonl_file
-        self.use_docker = use_docker
+        self.validator = validator
+
+        if self.validator == "vimgolf-validator":
+            assert_docker_privilege()
 
     def evaluate(self) -> list[bool]:
         results = []
@@ -58,12 +130,14 @@ class Evaluator:
             validated = False
 
             if custom_challenge.solution:
-                with vimgolf_gym.make(
-                    "vimgolf-custom",
-                    custom_challenge=custom_challenge,
-                    use_docker=self.use_docker,
-                ) as env:
-                    validated = env.verify_keys(custom_challenge.solution)
+                if self.validator == "vimgolf-local":
+                    validated = run_vimgolf_local(custom_challenge)
+                elif self.validator == "vimgolf-docker":
+                    validated = run_vimgolf_docker(custom_challenge)
+                elif self.validator == "vimgolf-validator":
+                    validated = run_vimgolf_validator(custom_challenge)
+                else:
+                    raise ValueError("Unknown validator:", self.validator)
             else:
                 pass
             # retrieve the evaluation result
@@ -91,32 +165,34 @@ def calculate_stats(results: list[bool]):
 
 
 def main():
+
     parser = argparse.ArgumentParser(
         description="Evaluate a batch of VimGolf solutions."
     )
+    # evaluation format for parsing: terminal-bench-adaptor
     parser.add_argument(
         "--solution-format", type=str, help="Formating style of the JSONL file."
     )
+    # jsonl filepath
     parser.add_argument(
         "--jsonl-file",
         type=str,
         help="Path to the JSONL file containing the VimGolf solutions.",
     )
+    # validator type
     parser.add_argument(
-        "--use-docker",
-        action="store_true",
-        help="Use Docker to run the VimGolf challenges for isolation.",
+        "--validator", type="str", help="Which validator to use for scoring solutions: vimgolf-local, vimgolf-docker, vimgolf-validator"
     )
     args = parser.parse_args()
 
     solution_format = args.solution_format
     jsonl_filepath = args.jsonl_file
-    use_docker = args.use_docker
+    validator = args.validator
 
     evaluator = Evaluator(
         solution_format=solution_format,
         jsonl_file=jsonl_filepath,
-        use_docker=use_docker,
+        validator=validator,
     )
     results = evaluator.evaluate()
     stats = calculate_stats(results)
