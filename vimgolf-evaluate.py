@@ -41,6 +41,7 @@ class Evaluator:
 
     def evaluate(self) -> list[bool]:
         results = []
+        working_solutions = []
         challenges = []
         with open(self.jsonl_file, "r") as f:
             for line in f:
@@ -64,11 +65,16 @@ class Evaluator:
                 pass
             # retrieve the evaluation result
             results.append(validated)
+            if validated:
+                working_solutions.append(custom_challenge.solution)
             print(
                 "Result for item (%s/%s) is %s"
                 % (index + 1, len(challenges), validated)
             )
         print("Evaluation finished")
+        print("Working solutions (%s):" % len(working_solutions))
+        for it in working_solutions:
+            print(repr(it))
         return results
 
 
