@@ -51,6 +51,7 @@ class Evaluator:
         print("Evaluating", len(challenges), "solutions")
         for index, custom_challenge in enumerate(challenges):
             print("Processing item (%s/%s)" % (index + 1, len(challenges)))
+            print("Checking solution:", repr(custom_challenge.solution))
             # evaluate the solution
             validated = False
 
