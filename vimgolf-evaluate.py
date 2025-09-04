@@ -58,7 +58,8 @@ def run_vimgolf_local(custom_challenge: vimgolf_gym.dataclasses.VimGolfCustomCha
         "vimgolf-custom",
         custom_challenge=custom_challenge,
     ) as env:
-        validated = env.verify_keys(custom_challenge.solution)
+        if custom_challenge.solution:
+            validated = env.verify_keys(custom_challenge.solution)
     return validated
 
 
@@ -69,7 +70,8 @@ def run_vimgolf_docker(
     with vimgolf_gym.make(
         "vimgolf-custom", custom_challenge=custom_challenge, use_docker=True
     ) as env:
-        validated = env.verify_keys(custom_challenge.solution)
+        if custom_challenge.solution:
+            validated = env.verify_keys(custom_challenge.solution)
     return validated
 
 
@@ -100,7 +102,7 @@ def run_vimgolf_validator(
     solution_keys = custom_challenge.solution
 
     cmd = shlex.split(
-        "docker run --rm --entrypoint /usr/bin/python3 --network=none agile4im/vimgolf-verifier:v0.0.1 /vimgolf-verifier.py single_shot"
+        "docker run --rm --network=none agile4im/vimgolf-verifier:v0.0.2 python /app/vimgolf-verifier.py single_shot"
     ) + ["--input_content", input_content, "--solution_keys", solution_keys]
     try:
         output = subprocess.check_output(cmd, timeout=15)
