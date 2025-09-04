@@ -105,7 +105,7 @@ def run_vimgolf_validator(
         "docker run --rm --network=none agile4im/vimgolf-verifier:v0.0.2 python /app/vimgolf-verifier.py single_shot"
     ) + ["--input_content", input_content, "--solution_keys", solution_keys]
     try:
-        output = subprocess.check_output(cmd, timeout=15)
+        output = subprocess.check_output(cmd, timeout=15.0) # type: ignore
         output = json.loads(output)
         checksum_server = output["checksum"]
         checksum_output = sha256_checksum(output_content)

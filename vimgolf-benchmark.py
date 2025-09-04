@@ -5,6 +5,9 @@
 
 # TODO: type keys char by char, in the observation process, the agent can summarize, change future keys, according to the feedback
 
+# TODO: write stdout, stderr to a file using tee, at top of the run log directory
+# TODO: write run task result to corresponding log folder
+import asyncio
 import litellm
 import vimgolf_gym
 import vimgolf_gym.dataclasses
@@ -13,19 +16,90 @@ import time
 from pathlib import Path
 import json
 import os
+import sys
+import copy
+import atexit
+
+
+async def run_challenge(
+    runner: str,
+    llm: "LLM",
+    custom_challenge: vimgolf_gym.dataclasses.VimGolfCustomChallenge,
+):
+    if runner == "single_shot":
+        return await run_single_shot(llm=llm, custom_challenge=custom_challenge)
+    elif runner == "multi_turn":
+        return await run_multi_turn(llm=llm, custom_challenge=custom_challenge)
+    else:
+        raise ValueError(f"Unknown runner: {runner}")
+
+
+# TODO: ability to change the filename on the fly
+class TeeLogger:
+    def __init__(self, filename, stream):
+        self.file = open(filename, "a")
+        atexit.register(self.file.close)
+        self.stream = stream
+
+    def write(self, message):
+        self.stream.write(message)
+        self.file.write(message)
+        self.flush()
+
+    def flush(self):
+        self.stream.flush()
+        self.file.flush()
+
+
+def redirect_stdout_stderr(log_file: str):
+    # Redirect both stdout and stderr
+    sys.stdout = TeeLogger(log_file, sys.stdout)
+    sys.stderr = TeeLogger(log_file, sys.stderr)
 
 
 class LLM:
     def __init__(self, model: str):
         self.model = model
+        self.history = []
 
-    def completion(self, messages: list[dict[str, str]]):
+    def dump_history(self, clear: bool):
+        ret = copy.deepcopy(self.history)
+        if clear:
+            self.history = []
+        return ret
+
+    async def acompletion(self, messages: list[dict[str, str]]):
         # messages: [{"content": ..., "role": ...}]
-        response = litellm.completion(self.model, messages=messages, stream=False)
-        return response
+        self.history.append(dict(type="messages", data=messages))
+        print("LLM repsonse:")
+        response = await litellm.acompletion(self.model, messages=messages, stream=True)
+        full_response = []
+        thinking = False
+
+        async for chunk in response:  # type: ignore
+            delta = chunk.choices[0]["delta"]  # type: ignore
+            if delta.get("reasoning_content") is not None:
+                chunk_content = delta["reasoning_content"]
+                if not thinking:
+                    print("\nThinking...")
+                    full_response.append("<thinking>\n")
+                    thinking = True
+            elif delta.get("content") is not None:
+                chunk_content = delta["content"]
+                if thinking:
+                    print("\nDone thinking.")
+                    full_response.append("</thinking>\n")
+                    thinking = False
+            print(chunk_content, sep="", end="", flush=True)
+            if chunk_content:
+                full_response.append(chunk_content)
+        print("\nLLM response complete.")
+        ret = "".join(full_response)
+        self.history.append(dict(type="response", data=ret))
+        return ret
 
 
-def run_single_shot(
+async def run_single_shot(
     llm: LLM,
     custom_challenge: vimgolf_gym.dataclasses.VimGolfCustomChallenge,
 ):
@@ -55,17 +129,25 @@ The output file wrapped in triple backticks:
 
 Your keystokes must be less than the length of output file. Do not naively copy and paste the output file. You must use Vim commands to transform the input file into the output file.
 
-Here are some example solutions, for format demostration:
+Here are some example solutions, for format demostration (all solutions shall be in one line):
 
 iHello World<Esc>:wq<NL>
 
 :%s/abcdef/defabc/g<NL>:wq<NL>
 
-Your last line of response will be treated as solution. Do not wrap the solution around any marker (like triple backticks), just write it in plain style.
+Your last line of response will be treated as solution. Do not wrap the solution around any marker (like triple backticks), just write it in plain style. Do not write it in multiline style. Do not write any comment or explanation. Do not write any other text. Just write the solution. If your solution contains multiple steps, you will concatenate these steps into one line, optionally using <NL> as separator, depending on the situation.
+
+Example response:
+
+I think the following solution is optimal:
+
+iHello World<Esc>:s/World/Earth/g<NL>:wq<NL>
+
+Please write your solution according to the rules and the example response:
 """
-    response = llm.completion([{"role": "user", "content": prompt}])
-    # return a string
-    response_content: str = response.chunks[0].content.strip()
+    print("Prompt:")
+    print(prompt)
+    response_content = await llm.acompletion([{"role": "system", "content": prompt}])
     if response_content:
         # retrieve last line
         lines = response_content.splitlines()
@@ -76,7 +158,7 @@ Your last line of response will be treated as solution. Do not wrap the solution
         return ""
 
 
-def run_multi_turn(
+async def run_multi_turn(
     llm: LLM, custom_challenge: vimgolf_gym.dataclasses.VimGolfCustomChallenge
 ):
     raise NotImplementedError("Multi turn benchmark not implemented yet")
@@ -131,6 +213,7 @@ class BenchmarkRunner:
         self,
         llm: LLM,
         dataset_dir: Path,
+        dataset_name: str,
         dataset_format: str,
         log_basedir: Path,
         task_timeout: int,
@@ -142,6 +225,7 @@ class BenchmarkRunner:
         Args:
             llm (litellm.LiteLLM): The LiteLLM model to use.
             dataset_dir (pathlib.Path): The directory of the vimgolf dataset.
+            dataset_name (str): The dataset name.
             log_basedir (pathlib.Path): The base directory of the log directory.
             task_timeout (int): The timeout in seconds to run a task.
             runner (str): The runner to use.
@@ -153,12 +237,18 @@ class BenchmarkRunner:
         self.log_basedir = log_basedir
         self.timestamp = time.time()
         self.runner = runner
-        self.cli_args = f"dataset_dir={dataset_dir}, log_basedir={log_basedir}"
+        self.cli_args = f"dataset_name={dataset_name}, task_timeout={task_timeout}, dataset_format={dataset_format}, timestamp={self.timestamp}, model={llm.model}"
+        self.run_log_path = self.log_basedir.resolve() / "runner.log"
+        self.run_log_path.write_text(self.cli_args + "\n")
+        redirect_stdout_stderr(str(self.run_log_path))
 
-    def run_task(self, task_id: str):
+    async def run_task(self, task_id: str):
         # create a new directory in the log directory, named with timestamp and cli args
         log_dir: Path = self.log_basedir.resolve() / task_id
         log_dir.mkdir(parents=True, exist_ok=True)
+
+        result_path = log_dir / "result.json"
+        llm_history_path = log_dir / "llm_history.json"
 
         task_path = self.dataset_dir / task_id
 
@@ -169,29 +259,42 @@ class BenchmarkRunner:
         else:
             raise ValueError(f"Unknown dataset format: {self.dataset_format}")
         start_time = time.time()
-        end_time = start_time + self.task_timeout
-
         llm = self.llm
+        status = "unknown"
 
         # TODO: set a hard timeout for the task, running the task in a separate thread
-        if self.runner == "single_shot":
-            solution = run_single_shot(llm=llm, custom_challenge=custom_challenge)
-        elif self.runner == "multi_turn":
-            solution = run_multi_turn(llm=llm, custom_challenge=custom_challenge)
-        else:
-            raise ValueError(f"Unknown runner: {self.runner}")
-        elapsed_time = time.time() - start_time
+        task = asyncio.create_task(
+            run_challenge(
+                runner=self.runner, llm=llm, custom_challenge=custom_challenge
+            )
+        )
+        try:
+            solution = asyncio.wait_for(task, timeout=self.task_timeout)
+            status = "success"
+        except asyncio.TimeoutError:
+            print(f"Task {task_id} timed out after {self.task_timeout} seconds")
+            solution = ""
+            status = "timeout"
+            was_cancelled = task.cancel()
+            print("Task cancelled:", was_cancelled)
+
+        end_time = time.time()
+        elapsed_time = end_time - start_time
         ret = dict(
             task_id=task_id,
+            status=status,
             start_time=start_time,
             elapsed_time=elapsed_time,
             solution=solution,
             input_content=custom_challenge.input,
             output_content=custom_challenge.output,
         )
+        result_path.write_text(json.dumps(ret, indent=4))
+        llm_history = llm.dump_history(clear=True)
+        llm_history_path.write_text(json.dumps(llm_history, indent=4))
         return ret
 
-    def run_all(self, milestone: int = 0):
+    async def run_all(self, milestone: int = 0):
         task_id_list = os.listdir(self.dataset_dir)
         task_id_list.sort()
         for index, task_id in enumerate(task_id_list):
@@ -199,11 +302,14 @@ class BenchmarkRunner:
                 print("Skipping task %s before milestone %s" % (task_id, milestone))
                 continue
             print("Running task %s" % task_id)
-            task_result = self.run_task(task_id)
+            # TODO: log prompt, log task result, log llm response
+            task_result = await self.run_task(task_id)
+            print("Task %s complete" % task_id)
+            print("Task result:", task_result)
             yield task_result
 
 
-def main():
+async def main():
     # parse args: dataset path, model name, log path
     # store logs in a subdirectory of the log path, named with timestamp, cli args
     # create a new directory in the subdirectory with task_id
@@ -241,18 +347,13 @@ def main():
     parser.add_argument(
         "--milestone", type=int, default=0, help="milestone for skipping tasks"
     )
+    parser.add_argument("--max-tasks", type=int, default=0, help="max tasks to run")
 
     args = parser.parse_args()
 
     # create a new directory in the log directory, named with timestamp and cli args
-    log_dir: Path = (
-        args.log_dir.resolve()
-        + "/"
-        + time.strftime("%Y-%m-%d-%H-%M-%S")
-        + "-"
-        + args.model
-        + "-"
-        + args.dataset_name
+    log_dir: Path = args.log_dir.resolve() / (
+        time.strftime("%Y-%m-%d-%H-%M-%S") + "-" + args.dataset_name
     )
     log_dir.mkdir(parents=True, exist_ok=True)
 
@@ -261,17 +362,25 @@ def main():
     runner = BenchmarkRunner(
         llm=llm,
         dataset_dir=args.dataset_dir.resolve(),
+        dataset_name=args.dataset_name,
         dataset_format=args.dataset_format,
         log_basedir=log_dir,
         task_timeout=args.task_timeout,
         runner=args.runner,
     )
     results = runner.run_all(milestone=args.milestone)
+    max_tasks = args.max_tasks if args.max_tasks > 0 else float("inf")
+    processed_tasks = 0
+
     with open(args.output_jsonl, "a+") as f:
-        for result in results:
+        async for result in results:
             f.write(json.dumps(result) + "\n")
+            f.flush()
+            processed_tasks += 1
+            if processed_tasks >= max_tasks:
+                break
     print("Output saved to", args.output_jsonl)
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
