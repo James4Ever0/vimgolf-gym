@@ -187,19 +187,22 @@ def main():
     )
     # evaluation format for parsing: terminal-bench-adaptor
     parser.add_argument(
-        "--solution-format", type=str, help="Formating style of the JSONL file."
+        "--solution-format", type=str, help="Formating style of the JSONL file.",
+        required=True
     )
     # jsonl filepath
     parser.add_argument(
         "--jsonl-file",
         type=str,
         help="Path to the JSONL file containing the VimGolf solutions.",
+        required=True
     )
     # validator type
     parser.add_argument(
         "--validator",
-        type="str",
+        type=str,
         help="Which validator to use for scoring solutions: vimgolf-local, vimgolf-docker, vimgolf-validator",
+        required=True
     )
     args = parser.parse_args()
 
