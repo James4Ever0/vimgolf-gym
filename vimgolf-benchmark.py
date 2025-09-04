@@ -238,6 +238,25 @@ class BenchmarkRunner:
         self.timestamp = time.time()
         self.runner = runner
         self.cli_args = f"dataset_name={dataset_name}, task_timeout={task_timeout}, dataset_format={dataset_format}, timestamp={self.timestamp}, model={llm.model}"
+        metadata_path = self.log_basedir.resolve() / "metadata.json"
+        metadata = dict(
+            cli_args=dict(
+                dataset_name=dataset_name,
+                task_timeout=task_timeout,
+                dataset_format=dataset_format,
+                timestamp=self.timestamp,
+                model=llm.model,
+                runner=runner,
+            ),
+            task_count=len(os.listdir(self.dataset_dir)),
+            task_id_list=os.listdir(self.dataset_dir),
+        )
+        metadata_path.write_text(
+            json.dumps(
+                metadata,
+                indent=4,
+            )
+        )
         self.run_log_path = self.log_basedir.resolve() / "runner.log"
         self.run_log_path.write_text(self.cli_args + "\n")
         redirect_stdout_stderr(str(self.run_log_path))
@@ -260,6 +279,7 @@ class BenchmarkRunner:
             raise ValueError(f"Unknown dataset format: {self.dataset_format}")
         start_time = time.time()
         llm = self.llm
+        solution = ""
         status = "unknown"
 
         # TODO: set a hard timeout for the task, running the task in a separate thread
@@ -269,7 +289,7 @@ class BenchmarkRunner:
             )
         )
         try:
-            solution = asyncio.wait_for(task, timeout=self.task_timeout)
+            solution = await asyncio.wait_for(task, timeout=self.task_timeout)
             status = "success"
         except asyncio.TimeoutError:
             print(f"Task {task_id} timed out after {self.task_timeout} seconds")
@@ -284,6 +304,7 @@ class BenchmarkRunner:
             task_id=task_id,
             status=status,
             start_time=start_time,
+            end_time=end_time,
             elapsed_time=elapsed_time,
             solution=solution,
             input_content=custom_challenge.input,
