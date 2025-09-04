@@ -224,7 +224,7 @@ def main():
         "--model", type=str, required=True, help="name of litellm model"
     )
     parser.add_argument(
-        "--log-dir", type=Path, required=True, help="path to log directory"
+        "--log-dir", type=Path, default=Path("./logs"), help="path to log directory"
     )
     parser.add_argument(
         "--task-timeout", type=int, default=840, help="timeout for each task in seconds"

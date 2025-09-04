@@ -18,6 +18,15 @@ class TerminalBenchAdaptorSolution(pydantic.BaseModel):
     solution: str
 
 
+class VimGolfBenchmarkSolution(pydantic.BaseModel):
+    task_id: str
+    start_time: float
+    elapsed_time: float
+    solution: str
+    input_content: str
+    output_content: str
+
+
 def prepare_input(
     solution_format: str, solution
 ) -> vimgolf_gym.dataclasses.VimGolfCustomChallenge:
@@ -31,6 +40,13 @@ def prepare_input(
         solution.challenge_hash
         return vimgolf_gym.dataclasses.VimGolfCustomChallenge(
             input=challenge_input, output=challenge_output, solution=solution.solution
+        )
+    elif solution_format == "vimgolf-benchmark":
+        solution = VimGolfBenchmarkSolution.parse_obj(solution)
+        return vimgolf_gym.dataclasses.VimGolfCustomChallenge(
+            input=solution.input_content,
+            output=solution.output_content,
+            solution=solution.solution,
         )
     else:
         raise ValueError(f"Unknown solution format: {solution_format}")
@@ -181,7 +197,9 @@ def main():
     )
     # validator type
     parser.add_argument(
-        "--validator", type="str", help="Which validator to use for scoring solutions: vimgolf-local, vimgolf-docker, vimgolf-validator"
+        "--validator",
+        type="str",
+        help="Which validator to use for scoring solutions: vimgolf-local, vimgolf-docker, vimgolf-validator",
     )
     args = parser.parse_args()
 
