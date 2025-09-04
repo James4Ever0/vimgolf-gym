@@ -229,3 +229,10 @@ example_custom_challenge_vimgolf_gym.yaml
 .vscode
 
 prompt-for-generating-vimgolf-wiki.txt
+
+logs
+
+single-shot-vimgolf-benchmark-prompt.txt
+test_run_benchmark.sh
+test_vimgolf_evaluate.sh
+vimgolf-result.jsonl
