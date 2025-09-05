@@ -42,7 +42,10 @@ def prepare_input(
         challenge_output = challenge_definition.output.data
         solution.challenge_hash
         return vimgolf_gym.dataclasses.VimGolfCustomChallenge(
-            input=challenge_input, output=challenge_output, solution=solution.solution
+            input=challenge_input,
+            output=challenge_output,
+            solution=solution.solution,
+            name=solution.trial_name,
         )
     elif solution_format == "vimgolf-benchmark":
         solution = VimGolfBenchmarkSolution.parse_obj(solution)
@@ -50,6 +53,7 @@ def prepare_input(
             input=solution.input_content,
             output=solution.output_content,
             solution=solution.solution,
+            name=f"{solution.task_id}-{solution.start_time}",
         )
     else:
         raise ValueError(f"Unknown solution format: {solution_format}")
@@ -119,11 +123,11 @@ def run_vimgolf_validator(
             "--solution_keys",
             "/verifier-input/" + solution_file_relpath,
             "--load_from_path",
-            "--remove_load_paths"
+            "--remove_load_paths",
         ]
-        docker_input_file_path=(pathlib.Path(tmpdir) / input_file_relpath)
+        docker_input_file_path = pathlib.Path(tmpdir) / input_file_relpath
         docker_input_file_path.write_text(input_content)
-        docker_solution_file_path = (pathlib.Path(tmpdir) / solution_file_relpath)
+        docker_solution_file_path = pathlib.Path(tmpdir) / solution_file_relpath
         docker_solution_file_path.write_text(solution_keys)
         try:
             output = subprocess.check_output(cmd, timeout=15.0)  # type: ignore
@@ -166,9 +170,41 @@ class Evaluator:
         if self.validator == "vimgolf-validator":
             assert_docker_privilege()
 
-    def evaluate(self) -> list[bool]:
+    def _evaluate_single(
+        self, custom_challenge: vimgolf_gym.dataclasses.VimGolfCustomChallenge
+    ) -> bool:
+        print("Challenge ID:", custom_challenge.name)
+        print("Checking solution:", repr(custom_challenge.solution))
+        # evaluate the solution
+        validated = False
+        if self.solution_not_longer_than_output:
+            key_length = len(
+                vimgolf.vimgolf.tokenize_keycode_reprs(custom_challenge.solution)
+            )
+            if key_length > len(custom_challenge.output):
+                print(
+                    "Invalidate solution: solution is longer than output (%s > %s)"
+                    % (key_length, len(custom_challenge.output))
+                )
+                return False
+        if custom_challenge.solution:
+            if self.validator == "vimgolf-local":
+                validated = run_vimgolf_local(custom_challenge)
+            elif self.validator == "vimgolf-docker":
+                validated = run_vimgolf_docker(custom_challenge)
+            elif self.validator == "vimgolf-validator":
+                validated = run_vimgolf_validator(custom_challenge)
+            else:
+                raise ValueError("Unknown validator:", self.validator)
+        else:
+            pass
+        return validated
+
+    def evaluate(self):
         results = []
         working_solutions = []
+        validated_ids = []
+        invalidated_ids = []
         challenges: list[vimgolf_gym.dataclasses.VimGolfCustomChallenge] = []
         with open(self.jsonl_file, "r") as f:
             for line in f:
@@ -179,37 +215,14 @@ class Evaluator:
         print("Evaluating", len(challenges), "solutions")
         for index, custom_challenge in enumerate(challenges):
             print("Processing item (%s/%s)" % (index + 1, len(challenges)))
-            print("Checking solution:", repr(custom_challenge.solution))
-            # evaluate the solution
-            validated = False
-
-            if self.solution_not_longer_than_output:
-                key_length = len(
-                    vimgolf.vimgolf.tokenize_keycode_reprs(custom_challenge.solution)
-                )
-                if key_length > len(custom_challenge.output):
-                    results.append(validated)
-                    print(
-                        "Invalidate solution: solution is longer than output (%s > %s)"
-                        % (key_length, len(custom_challenge.output))
-                    )
-                    continue
-
-            if custom_challenge.solution:
-                if self.validator == "vimgolf-local":
-                    validated = run_vimgolf_local(custom_challenge)
-                elif self.validator == "vimgolf-docker":
-                    validated = run_vimgolf_docker(custom_challenge)
-                elif self.validator == "vimgolf-validator":
-                    validated = run_vimgolf_validator(custom_challenge)
-                else:
-                    raise ValueError("Unknown validator:", self.validator)
-            else:
-                pass
             # retrieve the evaluation result
+            validated = self._evaluate_single(custom_challenge)
             results.append(validated)
             if validated:
                 working_solutions.append(custom_challenge.solution)
+                validated_ids.append(custom_challenge.name)
+            else:
+                invalidated_ids.append(custom_challenge.name)
             print(
                 "Result for item (%s/%s) is %s"
                 % (index + 1, len(challenges), validated)
@@ -218,7 +231,12 @@ class Evaluator:
         print("Working solutions (%s):" % len(working_solutions))
         for it in working_solutions:
             print(repr(it))
-        return results
+        return dict(
+            results=results,
+            validated_ids=validated_ids,
+            invalidated_ids=invalidated_ids,
+            working_solutions=working_solutions,
+        )
 
 
 def calculate_stats(results: list[bool]):
@@ -261,12 +279,19 @@ def main():
         action="store_true",
         help="Filter solutions that are longer than the output. This is done by comparing the the key count in solution to the length of the output",
     )
+    parser.add_argument(
+        "--result-savepath",
+        type=str,
+        required=True,
+        help="Path to the result file as JSON.",
+    )
 
     args = parser.parse_args()
 
     solution_format = args.solution_format
     jsonl_filepath = args.jsonl_file
     validator = args.validator
+    result_savepath = args.result_savepath
 
     evaluator = Evaluator(
         solution_format=solution_format,
@@ -274,10 +299,18 @@ def main():
         validator=validator,
         solution_not_longer_than_output=args.solution_not_longer_than_output,
     )
-    results = evaluator.evaluate()
+    eval_result = evaluator.evaluate()
+    print("Eval result:")
+    print(eval_result)
+    results = eval_result["results"]
     stats = calculate_stats(results)
     print("Statistics:")
     print(json.dumps(stats, indent=4))
+    # save everything to json
+    data = dict(eval_result=eval_result, stats=stats)
+    with open(result_savepath, "w") as f:
+        f.write(json.dumps(data, indent=4))
+    print("Result saved to:", result_savepath)
 
 
 if __name__ == "__main__":

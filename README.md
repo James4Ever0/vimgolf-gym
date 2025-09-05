@@ -390,6 +390,7 @@ python3 -u vimgolf-evaluate.py \
 --jsonl-file "<solution-result>.jsonl" \
 --validator vimgolf-validator \
 --solution-not-longer-than-output \
+--result-savepath "<eval-result>.json" \
 2>&1 | tee -a <evaluate-result>.log
 ```
 
