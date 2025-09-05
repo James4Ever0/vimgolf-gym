@@ -100,6 +100,7 @@ def run_vimgolf_validator(
     custom_challenge: vimgolf_gym.dataclasses.VimGolfCustomChallenge,
 ):
     validated = False
+    tainted = False
     input_content = custom_challenge.input
     output_content = custom_challenge.output
     solution_keys = custom_challenge.solution
@@ -120,14 +121,22 @@ def run_vimgolf_validator(
             "--load_from_path",
             "--remove_load_paths"
         ]
-        (pathlib.Path(tmpdir) / input_file_relpath).write_text(input_content)
-        (pathlib.Path(tmpdir) / solution_file_relpath).write_text(solution_keys)
+        docker_input_file_path=(pathlib.Path(tmpdir) / input_file_relpath)
+        docker_input_file_path.write_text(input_content)
+        docker_solution_file_path = (pathlib.Path(tmpdir) / solution_file_relpath)
+        docker_solution_file_path.write_text(solution_keys)
         try:
             output = subprocess.check_output(cmd, timeout=15.0)  # type: ignore
             output = json.loads(output)
             checksum_server = output["checksum"]
             checksum_output = sha256_checksum(output_content)
             validated = checksum_server == checksum_output
+            try:
+                # confirm deletion
+                assert not docker_input_file_path.is_file()
+                assert not docker_solution_file_path.is_file()
+            except AssertionError:
+                tainted = True
         except subprocess.CalledProcessError:
             pass
         except subprocess.TimeoutExpired:
@@ -136,6 +145,8 @@ def run_vimgolf_validator(
             pass
         except KeyError:
             pass
+    if tainted:
+        print("Warning: validator container is tainted")
     return validated
 
 
