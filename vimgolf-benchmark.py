@@ -236,6 +236,7 @@ class BenchmarkRunner:
         self.task_timeout = task_timeout
         self.llm = llm
         self.dataset_dir = dataset_dir
+        self.dataset_name = dataset_name
         self.dataset_format = dataset_format
         self.log_basedir = log_basedir
         self.timestamp = time.time()
@@ -303,9 +304,15 @@ class BenchmarkRunner:
 
         end_time = time.time()
         elapsed_time = end_time - start_time
+        trial_timestamp = time.strftime(
+            r"%Y-%m-%d-%H-%M-%S", time.localtime(start_time)
+        )
+        trial_name = f"{task_id}-{self.dataset_name}-{trial_timestamp}"
         ret = dict(
             task_id=task_id,
+            dataset_name=self.dataset_name,
             status=status,
+            trial_name=trial_name,
             start_time=start_time,
             end_time=end_time,
             elapsed_time=elapsed_time,
@@ -377,7 +384,7 @@ async def main():
 
     # create a new directory in the log directory, named with timestamp and dataset name
     log_dir: Path = args.log_dir.resolve() / (
-        time.strftime("%Y-%m-%d-%H-%M-%S") + "-" + args.dataset_name
+        time.strftime(r"%Y-%m-%d-%H-%M-%S", time.localtime()) + "-" + args.dataset_name
     )
     log_dir.mkdir(parents=True, exist_ok=True)
 

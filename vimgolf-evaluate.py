@@ -23,6 +23,8 @@ class TerminalBenchAdaptorSolution(pydantic.BaseModel):
 
 class VimGolfBenchmarkSolution(pydantic.BaseModel):
     task_id: str
+    dataset_name: str
+    trial_name:str
     start_time: float
     elapsed_time: float
     solution: str
@@ -53,7 +55,7 @@ def prepare_input(
             input=solution.input_content,
             output=solution.output_content,
             solution=solution.solution,
-            name=f"{solution.task_id}-{solution.start_time}",
+            name=solution.trial_name,
         )
     else:
         raise ValueError(f"Unknown solution format: {solution_format}")
