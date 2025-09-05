@@ -9,7 +9,9 @@ import hashlib
 import shlex
 import subprocess
 import shutil
+import tempfile
 import os
+import pathlib
 
 
 class TerminalBenchAdaptorSolution(pydantic.BaseModel):
@@ -101,29 +103,49 @@ def run_vimgolf_validator(
     input_content = custom_challenge.input
     output_content = custom_challenge.output
     solution_keys = custom_challenge.solution
+    if not solution_keys:
+        print("Empty solution keys")
+        return validated
 
-    cmd = shlex.split(
-        "docker run --rm --network=none agile4im/vimgolf-verifier:v0.0.2 python /app/vimgolf-verifier.py single_shot"
-    ) + ["--input_content", input_content, "--solution_keys", solution_keys]
-    try:
-        output = subprocess.check_output(cmd, timeout=15.0)  # type: ignore
-        output = json.loads(output)
-        checksum_server = output["checksum"]
-        checksum_output = sha256_checksum(output_content)
-        validated = checksum_server == checksum_output
-    except subprocess.CalledProcessError:
-        pass
-    except subprocess.TimeoutExpired:
-        pass
-    except json.JSONDecodeError:
-        pass
-    except KeyError:
-        pass
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_file_relpath = "input.txt"
+        solution_file_relpath = "solution.txt"
+        cmd = shlex.split(
+            f"docker run --rm -v {tmpdir}:/verifier-input --network=none agile4im/vimgolf-verifier:v0.0.2 python /app/vimgolf-verifier.py single_shot"
+        ) + [
+            "--input_content",
+            "/verifier-input/" + input_file_relpath,
+            "--solution_keys",
+            "/verifier-input/" + solution_file_relpath,
+            "--load_from_path",
+        ]
+        (pathlib.Path(tmpdir) / input_file_relpath).write_text(input_content)
+        (pathlib.Path(tmpdir) / solution_file_relpath).write_text(solution_keys)
+        try:
+            output = subprocess.check_output(cmd, timeout=15.0)  # type: ignore
+            output = json.loads(output)
+            checksum_server = output["checksum"]
+            checksum_output = sha256_checksum(output_content)
+            validated = checksum_server == checksum_output
+        except subprocess.CalledProcessError:
+            pass
+        except subprocess.TimeoutExpired:
+            pass
+        except json.JSONDecodeError:
+            pass
+        except KeyError:
+            pass
     return validated
 
 
 class Evaluator:
-    def __init__(self, solution_format: str, jsonl_file: str, validator: str, solution_not_longer_than_output: bool):
+    def __init__(
+        self,
+        solution_format: str,
+        jsonl_file: str,
+        validator: str,
+        solution_not_longer_than_output: bool,
+    ):
         self.solution_format = solution_format
         self.jsonl_file = jsonl_file
         self.validator = validator
@@ -150,10 +172,15 @@ class Evaluator:
             validated = False
 
             if self.solution_not_longer_than_output:
-                key_length = len(vimgolf.vimgolf.tokenize_keycode_reprs(custom_challenge.solution))
+                key_length = len(
+                    vimgolf.vimgolf.tokenize_keycode_reprs(custom_challenge.solution)
+                )
                 if key_length > len(custom_challenge.output):
                     results.append(validated)
-                    print("Invalidate solution: solution is longer than output (%s > %s)" % (key_length, len(custom_challenge.output)))
+                    print(
+                        "Invalidate solution: solution is longer than output (%s > %s)"
+                        % (key_length, len(custom_challenge.output))
+                    )
                     continue
 
             if custom_challenge.solution:
