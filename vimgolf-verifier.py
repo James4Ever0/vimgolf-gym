@@ -72,6 +72,7 @@ def run_vimgolf_replay(input_content: str, solution_keys: str):
             "-U",
             "NONE",  # don't load .gvimrc
             '+call feedkeys("{}", "t")'.format(init_feedkeys),  # initial keys
+            "--nofork",
         ]
         cmd = ["vim", *extra_vim_args, input_filepath]
         input_checksum = sha256_checksum(input_content)
@@ -88,6 +89,8 @@ def run_vimgolf_replay(input_content: str, solution_keys: str):
         if os.path.isfile(input_filepath):
             with open(input_filepath, "r") as f:
                 output_content = f.read()
+            print("Output content:")
+            print(output_content)
             if output_content:
                 checksum = sha256_checksum(output_content)
                 if checksum != input_checksum:
@@ -100,7 +103,8 @@ def run_vimgolf_replay(input_content: str, solution_keys: str):
 
 
 def test():
-    input_content = """class Golfer
+    test_data = dict(
+        input_content="""class Golfer
      def initialize; end # initialize
   def useless; end;
   
@@ -108,16 +112,25 @@ def test():
       puts "Hello #{a}, #{b}, #{c}, #{d}"
    end
 end
-"""
-
-    expected_output = """class Golfer
+""",
+        expected_output="""class Golfer
   def self.hello(*a)
     puts "Hello #{a.join(',')}"
   end
 end
-"""
+""",
+        vimgolf_solution="<Esc>:<Up><Up><Up><Up><Up>g.<BS>/.*def.$<BS>*end.*/d<CR>:v/\\S/f<BS>d<CR>fai*<Esc><Right><Right>cf))<Esc><Down><Left>i.join(',')<Esc>lldf:df\"a\"<Esc>=<Esc><Esc><BS><Up><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left>xxxxxi  <Down><Down><Esc>x<Up><Right>xx<Esc>:wq<CR>",
+    )
+    suspected_false_positive_data = dict(
+        input_content="var parser = require('../src/grammar.js'),\r\n    src = require('../src/blueberry.js'),\r\n    fs = require('fs'),\r\n    glob = require('glob');",
+        expected_output="var parser = require('../src/grammar.js'),\r\n    src    = require('../src/blueberry.js'),\r\n    fs     = require('fs'),\r\n    glob   = require('glob');",
+        vimgolf_solution=":%s/\\(\\S\\+\\)\\s*=\\s*/\\=printf('%-6s = ', submatch(1))/<NL>:wq<NL>\n",
+    )
+    data = suspected_false_positive_data
 
-    vimgolf_solution = "<Esc>:<Up><Up><Up><Up><Up>g.<BS>/.*def.$<BS>*end.*/d<CR>:v/\\S/f<BS>d<CR>fai*<Esc><Right><Right>cf))<Esc><Down><Left>i.join(',')<Esc>lldf:df\"a\"<Esc>=<Esc><Esc><BS><Up><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left>xxxxxi  <Down><Down><Esc>x<Up><Right>xx<Esc>:wq<CR>"
+    input_content = vimgolf.vimgolf.format_(data["input_content"])
+    expected_output = vimgolf.vimgolf.format_(data["expected_output"])
+    vimgolf_solution = data["vimgolf_solution"]
 
     server_response = run_vimgolf_replay(
         input_content=input_content,
@@ -125,6 +138,10 @@ end
     )
     checksum_server = server_response["checksum"]
     checksum_output = sha256_checksum(expected_output)
+    print("Expected output:")
+    print(expected_output)
+    print("Checksum server:", checksum_server)
+    print("Checksum output:", checksum_output)
     success = checksum_server == checksum_output
     print("Test passed:", success)
 

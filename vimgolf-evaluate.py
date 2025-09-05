@@ -107,8 +107,8 @@ def run_vimgolf_validator(
 ):
     validated = False
     tainted = False
-    input_content = custom_challenge.input
-    output_content = custom_challenge.output
+    input_content = vimgolf.vimgolf.format_(custom_challenge.input)
+    output_content = vimgolf.vimgolf.format_(custom_challenge.output)
     solution_keys = custom_challenge.solution
     if not solution_keys:
         print("Empty solution keys")
