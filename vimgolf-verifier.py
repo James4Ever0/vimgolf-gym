@@ -1,3 +1,9 @@
+"""
+VimGolf Solution Verifier
+
+Note: before passing anything into the verifier, please sanitize the input and output strings of the challenge with `vimgolf_gym.format_vimgolf_string` or  vimgolf.vimgolf.format_` to prevent false negatives.
+"""
+
 import argparse
 import hashlib
 import os
