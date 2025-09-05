@@ -143,6 +143,7 @@ def main():
     single_shot_parser.add_argument("--input_content", type=str, required=True)
     single_shot_parser.add_argument("--solution_keys", type=str, required=True)
     single_shot_parser.add_argument("--load_from_path", action="store_true")
+    single_shot_parser.add_argument("--remove_load_paths", action="store_true")
 
     subparsers.add_parser("test")
 
@@ -157,6 +158,9 @@ def main():
                 input_content = f.read()
             with open(args.solution_keys, "r") as f:
                 solution_keys = f.read()
+        if args.remove_load_paths:
+            os.remove(args.input_content)
+            os.remove(args.solution_keys)
         response = run_vimgolf_replay(
             input_content=input_content, solution_keys=solution_keys
         )

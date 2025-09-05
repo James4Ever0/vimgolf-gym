@@ -111,13 +111,14 @@ def run_vimgolf_validator(
         input_file_relpath = "input.txt"
         solution_file_relpath = "solution.txt"
         cmd = shlex.split(
-            f"docker run --rm -v {tmpdir}:/verifier-input --network=none agile4im/vimgolf-verifier:v0.0.2 python /app/vimgolf-verifier.py single_shot"
+            f"docker run --rm -v {tmpdir}:/verifier-input --entrypoint python --network=none agile4im/vimgolf-verifier:v0.0.3 /app/vimgolf-verifier.py single_shot"
         ) + [
             "--input_content",
             "/verifier-input/" + input_file_relpath,
             "--solution_keys",
             "/verifier-input/" + solution_file_relpath,
             "--load_from_path",
+            "--remove_load_paths"
         ]
         (pathlib.Path(tmpdir) / input_file_relpath).write_text(input_content)
         (pathlib.Path(tmpdir) / solution_file_relpath).write_text(solution_keys)
