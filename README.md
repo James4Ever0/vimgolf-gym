@@ -216,6 +216,7 @@ import vimgolf_gym
 unsanitized_string = "hello world\r\nhello again"
 
 # dos2unix and add newline to end if missing
+# output: "hello world\nhello again\n"
 sanitized_string = vimgolf_gym.format_vimgolf_string(unsanitized_string)
 ```
 

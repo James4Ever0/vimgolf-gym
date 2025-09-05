@@ -10,6 +10,7 @@ from vimgolf_gym.lib import (
     get_local_challenge_worst_solution,
     get_local_challenge_worst_solution_header,
     list_local_challenge_ids,
+    format_vimgolf_string,
     make,
 )
 
@@ -27,6 +28,7 @@ if os.environ.get("PDOC_PROCESS"):
         "get_local_challenge_metadata",
         "get_local_challenge_worst_solution",
         "get_local_challenge_worst_solution_header",
+        "format_vimgolf_string",
         "dataclasses",
         "lib",
         "log_parser",
@@ -42,4 +44,5 @@ else:
         "get_local_challenge_metadata",
         "get_local_challenge_worst_solution",
         "get_local_challenge_worst_solution_header",
+        "format_vimgolf_string",
     ]
