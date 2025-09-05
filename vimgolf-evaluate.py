@@ -173,6 +173,7 @@ class Evaluator:
     def _evaluate_single(
         self, custom_challenge: vimgolf_gym.dataclasses.VimGolfCustomChallenge
     ) -> bool:
+        assert custom_challenge.name, "Challenge name is required"
         print("Challenge ID:", custom_challenge.name)
         print("Checking solution:", repr(custom_challenge.solution))
         # evaluate the solution

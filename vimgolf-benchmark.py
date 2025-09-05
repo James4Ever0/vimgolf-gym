@@ -19,6 +19,7 @@ import os
 import sys
 import copy
 import atexit
+import typing
 
 
 async def run_challenge(
@@ -36,7 +37,7 @@ async def run_challenge(
 
 # TODO: ability to change the filename on the fly
 class TeeLogger:
-    def __init__(self, filename, stream):
+    def __init__(self, filename, stream: typing.TextIO):
         self.file = open(filename, "a")
         atexit.register(self.file.close)
         self.stream = stream
@@ -53,6 +54,8 @@ class TeeLogger:
 
 def redirect_stdout_stderr(log_file: str):
     # Redirect both stdout and stderr
+    assert sys.stdout
+    assert sys.stderr
     sys.stdout = TeeLogger(log_file, sys.stdout)
     sys.stderr = TeeLogger(log_file, sys.stderr)
 
@@ -372,7 +375,7 @@ async def main():
 
     args = parser.parse_args()
 
-    # create a new directory in the log directory, named with timestamp and cli args
+    # create a new directory in the log directory, named with timestamp and dataset name
     log_dir: Path = args.log_dir.resolve() / (
         time.strftime("%Y-%m-%d-%H-%M-%S") + "-" + args.dataset_name
     )
