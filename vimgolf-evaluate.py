@@ -32,11 +32,21 @@ class VimGolfBenchmarkSolution(pydantic.BaseModel):
     output_content: str
 
 
+def extract_first_non_empty_line(content: str) -> str:
+    content = vimgolf.vimgolf.format_(content)
+    lines = content.split("\n")
+    for line in lines:
+        if line.strip():
+            return line
+    return ""
+
+
 def prepare_input(
     solution_format: str, solution
 ) -> vimgolf_gym.dataclasses.VimGolfCustomChallenge:
     if solution_format == "terminal-bench-adaptor":
         solution = TerminalBenchAdaptorSolution.parse_obj(solution)
+        solution.solution = extract_first_non_empty_line(solution.solution)
         challenge_definition = vimgolf_gym.lib.get_local_challenge_definition(
             solution.challenge_hash
         )
@@ -51,6 +61,7 @@ def prepare_input(
         )
     elif solution_format == "vimgolf-benchmark":
         solution = VimGolfBenchmarkSolution.parse_obj(solution)
+        solution.solution = extract_first_non_empty_line(solution.solution)
         return vimgolf_gym.dataclasses.VimGolfCustomChallenge(
             input=solution.input_content,
             output=solution.output_content,
