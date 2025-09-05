@@ -267,7 +267,12 @@ class BenchmarkRunner:
 
     async def run_task(self, task_id: str):
         # create a new directory in the log directory, named with timestamp and cli args
-        log_dir: Path = self.log_basedir.resolve() / task_id
+        start_time = time.time()
+        trial_timestamp = time.strftime(
+            r"%Y-%m-%d-%H-%M-%S", time.localtime(start_time)
+        )
+        trial_name = f"{task_id}-{self.dataset_name}-{trial_timestamp}"
+        log_dir: Path = self.log_basedir.resolve() / task_id / trial_name
         log_dir.mkdir(parents=True, exist_ok=True)
 
         result_path = log_dir / "result.json"
@@ -281,7 +286,6 @@ class BenchmarkRunner:
             custom_challenge = build_vimgolf_custom_task(task_path)
         else:
             raise ValueError(f"Unknown dataset format: {self.dataset_format}")
-        start_time = time.time()
         llm = self.llm
         solution = ""
         status = "unknown"
@@ -304,10 +308,6 @@ class BenchmarkRunner:
 
         end_time = time.time()
         elapsed_time = end_time - start_time
-        trial_timestamp = time.strftime(
-            r"%Y-%m-%d-%H-%M-%S", time.localtime(start_time)
-        )
-        trial_name = f"{task_id}-{self.dataset_name}-{trial_timestamp}"
         ret = dict(
             task_id=task_id,
             dataset_name=self.dataset_name,

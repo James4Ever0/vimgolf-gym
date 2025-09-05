@@ -24,7 +24,7 @@ class TerminalBenchAdaptorSolution(pydantic.BaseModel):
 class VimGolfBenchmarkSolution(pydantic.BaseModel):
     task_id: str
     dataset_name: str
-    trial_name:str
+    trial_name: str
     start_time: float
     elapsed_time: float
     solution: str

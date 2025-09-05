@@ -154,7 +154,7 @@ def main():
         input_content = args.input_content
         solution_keys = args.solution_keys
         if args.load_from_path:
-            with open(args.input_content, 'r') as f:
+            with open(args.input_content, "r") as f:
                 input_content = f.read()
             with open(args.solution_keys, "r") as f:
                 solution_keys = f.read()
@@ -167,6 +167,7 @@ def main():
         print(json.dumps(response))
     elif args.command == "test":
         test()
+
 
 if __name__ == "__main__":
     main()
