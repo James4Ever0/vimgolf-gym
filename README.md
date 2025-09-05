@@ -338,6 +338,40 @@ If you want to obtain online challenge ids, you have a few options:
    - Install: `pip3 install vimgolf`
    - Run: `vimgolf list`
 
+## Benchmark
+
+We provide a simple benchmark script `vimgolf-benchmark.py` that can be used to benchmark the performance of a model in batch. The script produces a JSONL file which can be used for evaluation.
+
+Before running the script, you need to install dependencies:
+
+```bash
+pip3 install litellm==1.76.2 vimgolf_gym==0.1.1
+```
+
+To use Ollama for inference, you can run the following command:
+
+```bash
+
+export OLLAMA_API_BASE=<your_ollama_api_base>
+MODEL="ollama/<model_id>"
+
+JSONL_OUTPUT="<benchmark_output>.jsonl"
+DATASET_NAME="<dataset_name>"
+DATASET_DIR=$(realpath "<dataset_dir>")
+DATASET_FORMAT="<dataset_format>"
+RUNNER="single_shot"
+
+python3 vimgolf-benchmark.py \
+--output-jsonl $JSONL_OUTPUT \
+--model $MODEL \
+--dataset-name $DATASET_NAME \
+--dataset-dir $DATASET_DIR \
+--dataset-format $DATASET_FORMAT \
+--runner $RUNNER
+```
+
+If you want to evaluate the results, you need to provide `--solution-format vimgolf-benchmark` to the evaluator script.
+
 ## Evaluation
 
 We provide a simple evaluation script `vimgolf-evaluate.py` that can be used to evaluate the performance in batch. The script takes a JSONL file and the format name of the file as input and returns the overall score of the batch.
@@ -351,7 +385,12 @@ pip3 install vimgolf-gym==0.1.1
 To evaluate the output from [terminal-bench adaptor](https://github.com/James4Ever0/terminal-bench/tree/vimgolf-comparison) for a parity experiment, you can use the following command:
 
 ```bash
-python3 -u vimgolf-evaluate.py --solution-format terminal-bench-adaptor --jsonl-file "<solution-result>.jsonl" --validator vimgolf-validator --solution-not-longer-than-output 2>&1 | tee -a <evaluate-result>.log
+python3 -u vimgolf-evaluate.py \
+--solution-format terminal-bench-adaptor \
+--jsonl-file "<solution-result>.jsonl" \
+--validator vimgolf-validator \
+--solution-not-longer-than-output \
+2>&1 | tee -a <evaluate-result>.log
 ```
 
 ## License
