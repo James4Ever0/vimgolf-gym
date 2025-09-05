@@ -208,6 +208,17 @@ docker pull agile4im/cybergod_vimgolf_gym
 
 ## Usage
 
+Before everything else, remember to manually sanitize the string before passing into the VimGolf challenge environment, to prevent misjudgement.
+
+```python
+import vimgolf_gym
+
+unsanitized_string = "hello world\r\nhello again"
+
+# dos2unix and add newline to end if missing
+sanitized_string = vimgolf_gym.format_vimgolf_string(unsanitized_string)
+```
+
 Basic interactions:
 
 ```python

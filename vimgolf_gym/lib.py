@@ -56,6 +56,7 @@ __all__ = [
     "get_local_challenge_metadata",
     "get_local_challenge_worst_solution",
     "get_local_challenge_worst_solution_header",
+    "format_vimgolf_string",
     "VimGolfEnv",
 ]
 
@@ -63,6 +64,10 @@ __all__ = [
 class DatasetInitError(Exception):
     pass
 
+
+def format_vimgolf_string(string:str):
+    """dos2unix and add newline to end if missing."""
+    return vimgolf.format_(string)
 
 def assert_challenge_id_length(challenge_id: str):
     """Assert the challenge_id length to be 24"""
@@ -719,6 +724,8 @@ class VimGolfEnv:
                 buffer = env.buffer
                 with open(self.output_file, "rb") as f:
                     expected_output = f.read()
+                buffer = vimgolf.format_(buffer)
+                expected_output = vimgolf.format_(expected_output)
                 success = buffer == expected_output
             return success
 
