@@ -1,6 +1,7 @@
 import vimgolf_gym
 import vimgolf_gym.dataclasses
 import vimgolf_gym.lib
+import vimgolf.vimgolf
 import json
 import argparse
 import pydantic
@@ -105,7 +106,7 @@ def run_vimgolf_validator(
         "docker run --rm --network=none agile4im/vimgolf-verifier:v0.0.2 python /app/vimgolf-verifier.py single_shot"
     ) + ["--input_content", input_content, "--solution_keys", solution_keys]
     try:
-        output = subprocess.check_output(cmd, timeout=15.0) # type: ignore
+        output = subprocess.check_output(cmd, timeout=15.0)  # type: ignore
         output = json.loads(output)
         checksum_server = output["checksum"]
         checksum_output = sha256_checksum(output_content)
@@ -122,10 +123,11 @@ def run_vimgolf_validator(
 
 
 class Evaluator:
-    def __init__(self, solution_format: str, jsonl_file: str, validator: str):
+    def __init__(self, solution_format: str, jsonl_file: str, validator: str, solution_not_longer_than_output: bool):
         self.solution_format = solution_format
         self.jsonl_file = jsonl_file
         self.validator = validator
+        self.solution_not_longer_than_output = solution_not_longer_than_output
 
         if self.validator == "vimgolf-validator":
             assert_docker_privilege()
@@ -133,7 +135,7 @@ class Evaluator:
     def evaluate(self) -> list[bool]:
         results = []
         working_solutions = []
-        challenges = []
+        challenges: list[vimgolf_gym.dataclasses.VimGolfCustomChallenge] = []
         with open(self.jsonl_file, "r") as f:
             for line in f:
                 solution = json.loads(line)
@@ -146,6 +148,13 @@ class Evaluator:
             print("Checking solution:", repr(custom_challenge.solution))
             # evaluate the solution
             validated = False
+
+            if self.solution_not_longer_than_output:
+                key_length = len(vimgolf.vimgolf.tokenize_keycode_reprs(custom_challenge.solution))
+                if key_length > len(custom_challenge.output):
+                    results.append(validated)
+                    print("Invalidate solution: solution is longer than output (%s > %s)" % (key_length, len(custom_challenge.output)))
+                    continue
 
             if custom_challenge.solution:
                 if self.validator == "vimgolf-local":
@@ -189,23 +198,31 @@ def main():
     )
     # evaluation format for parsing: terminal-bench-adaptor
     parser.add_argument(
-        "--solution-format", type=str, help="Formating style of the JSONL file.",
-        required=True
+        "--solution-format",
+        type=str,
+        help="Formating style of the JSONL file.",
+        required=True,
     )
     # jsonl filepath
     parser.add_argument(
         "--jsonl-file",
         type=str,
         help="Path to the JSONL file containing the VimGolf solutions.",
-        required=True
+        required=True,
     )
     # validator type
     parser.add_argument(
         "--validator",
         type=str,
         help="Which validator to use for scoring solutions: vimgolf-local, vimgolf-docker, vimgolf-validator",
-        required=True
+        required=True,
     )
+    parser.add_argument(
+        "--solution-not-longer-than-output",
+        action="store_true",
+        help="Filter solutions that are longer than the output. This is done by comparing the the key count in solution to the length of the output",
+    )
+
     args = parser.parse_args()
 
     solution_format = args.solution_format
@@ -216,6 +233,7 @@ def main():
         solution_format=solution_format,
         jsonl_file=jsonl_filepath,
         validator=validator,
+        solution_not_longer_than_output=args.solution_not_longer_than_output,
     )
     results = evaluator.evaluate()
     stats = calculate_stats(results)

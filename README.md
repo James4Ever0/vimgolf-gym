@@ -348,10 +348,10 @@ Before running the script, you need to install dependencies:
 pip3 install vimgolf-gym==0.1.1
 ```
 
-To evaluate the output from [terminal-bench adaptor](https://github.com/James4Ever0/terminal-bench/tree/vimgolf-comparison), you can use the following command:
+To evaluate the output from [terminal-bench adaptor](https://github.com/James4Ever0/terminal-bench/tree/vimgolf-comparison) for a parity experiment, you can use the following command:
 
 ```bash
-python3 vimgolf-evaluate.py --solution-format terminal-bench-adaptor --jsonl-file "<solution-result>.jsonl" --validator vimgolf-validator
+python3 -u vimgolf-evaluate.py --solution-format terminal-bench-adaptor --jsonl-file "<solution-result>.jsonl" --validator vimgolf-validator --solution-not-longer-than-output 2>&1 | tee -a <evaluate-result>.log
 ```
 
 ## License
