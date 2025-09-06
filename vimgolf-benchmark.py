@@ -153,13 +153,18 @@ Please write your solution according to the rules and the example response:
     response_content = await llm.acompletion([{"role": "system", "content": prompt}])
     if response_content:
         # retrieve last line
-        lines = response_content.splitlines()
-        lines = [it.strip() for it in lines if it.strip()]
-        solution = lines[-1]
+        solution = get_last_non_empty_line(response_content)
         return solution
     else:
         return ""
 
+def get_last_non_empty_line(content:str):
+    lines = content.splitlines()
+    lines = [it.strip() for it in lines if it.strip()]
+    if lines:
+        return lines[-1]
+    else:
+        return ""
 
 async def run_multi_turn(
     llm: LLM, custom_challenge: vimgolf_gym.dataclasses.VimGolfCustomChallenge
