@@ -184,7 +184,9 @@ class Evaluator:
             assert_docker_privilege()
 
     def _evaluate_single(
-        self, custom_challenge: vimgolf_gym.dataclasses.VimGolfCustomChallenge
+        self,
+        custom_challenge: vimgolf_gym.dataclasses.VimGolfCustomChallenge,
+        original_solution_object: dict,
     ) -> bool:
         assert custom_challenge.name, "Challenge name is required"
         print("Challenge ID:", custom_challenge.name)
@@ -192,9 +194,16 @@ class Evaluator:
         # evaluate the solution
         validated = False
         if self.solution_not_longer_than_output:
-            key_length = len(
-                vimgolf.vimgolf.tokenize_keycode_reprs(custom_challenge.solution)
-            )
+            if self.solution_format == "terminal-bench-adaptor":
+                key_length = len(
+                    vimgolf.vimgolf.tokenize_keycode_reprs(
+                        original_solution_object["solution"]
+                    )
+                )
+            else:
+                key_length = len(
+                    vimgolf.vimgolf.tokenize_keycode_reprs(custom_challenge.solution)
+                )
             if key_length > len(custom_challenge.output):
                 print(
                     "Invalidate solution: solution is longer than output (%s > %s)"
@@ -219,18 +228,28 @@ class Evaluator:
         working_solutions = []
         validated_ids = []
         invalidated_ids = []
-        challenges: list[vimgolf_gym.dataclasses.VimGolfCustomChallenge] = []
+        challenges: list[
+            tuple[vimgolf_gym.dataclasses.VimGolfCustomChallenge, dict]
+        ] = []
         with open(self.jsonl_file, "r") as f:
             for line in f:
-                solution = json.loads(line)
+                original_solution_object = json.loads(line)
                 # use solution_format to parse the solution
-                custom_challenge = prepare_input(self.solution_format, solution)
-                challenges.append(custom_challenge)
+                custom_challenge = prepare_input(
+                    solution_format=self.solution_format,
+                    solution=original_solution_object,
+                )
+                challenges.append((custom_challenge, original_solution_object))
         print("Evaluating", len(challenges), "solutions")
-        for index, custom_challenge in enumerate(challenges):
+        for index, (custom_challenge, original_solution_object) in enumerate(
+            challenges
+        ):
             print("Processing item (%s/%s)" % (index + 1, len(challenges)))
             # retrieve the evaluation result
-            validated = self._evaluate_single(custom_challenge)
+            validated = self._evaluate_single(
+                custom_challenge=custom_challenge,
+                original_solution_object=original_solution_object,
+            )
             results.append(validated)
             if validated:
                 working_solutions.append(custom_challenge.solution)
