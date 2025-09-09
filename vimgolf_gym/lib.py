@@ -538,6 +538,7 @@ class VimGolfEnv:
                 "-v",
                 "%s:%s" % (self.log_directory.name, mountpoint),
                 *extra_docker_run_params,
+                "--network=none",
                 "--entrypoint",
                 "python3",
                 "agile4im/cybergod_vimgolf_gym",
