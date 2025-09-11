@@ -403,7 +403,7 @@ python3 -u vimgolf-evaluate.py \
 --validator vimgolf-validator \
 --solution-not-longer-than-output \
 --result-savepath "<eval-result>.json" \
-2>&1 | tee -a <evaluate-result>.log
+2>&1 | tee -a "<evaluate-result>.log"
 ```
 
 ## License
