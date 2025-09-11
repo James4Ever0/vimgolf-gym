@@ -24,6 +24,7 @@
 <a href="https://huggingface.co/datasets/James4Ever0/vimgolf_challenges_and_solutions"><img alt="Vimgolf public challenge dataset" src="https://img.shields.io/badge/🤗-HuggingFace-blue"></a>
 <a href="https://hub.docker.com/r/agile4im/cybergod_vimgolf_gym"><img alt="Docker image: agile4im/cybergod_vimgolf_gym" src="https://img.shields.io/badge/dockerhub-gray?logo=docker"></a>
 <a href="https://www.benchflow.ai/benchmarks/James4ever0/Vimgolf"><img alt="Benchflow" src="https://img.shields.io/badge/Benchflow-blueviolet"></a>
+<a href="https://discord.gg/eM5vezJvEQ"><img alt="Discord" src="https://img.shields.io/discord/1146610656779440188?logo=discord&style=flat&logoColor=white"/></a>
 </p>
 </div>
 
