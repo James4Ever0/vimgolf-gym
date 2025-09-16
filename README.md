@@ -25,6 +25,7 @@
 <a href="https://hub.docker.com/r/agile4im/cybergod_vimgolf_gym"><img alt="Docker image: agile4im/cybergod_vimgolf_gym" src="https://img.shields.io/badge/dockerhub-gray?logo=docker"></a>
 <a href="https://www.benchflow.ai/benchmarks/James4ever0/Vimgolf"><img alt="Benchflow" src="https://img.shields.io/badge/Benchflow-blueviolet"></a>
 <a href="https://vimgolf.netlify.com"><img alt="Netlify Status" src="https://api.netlify.com/api/v1/badges/ac58a477-2f8b-42cd-b3b5-5e3ebeb8fa78/deploy-status"></a>
+<a href="https://discord.gg/eM5vezJvEQ"><img alt="Discord" src="https://img.shields.io/discord/1146610656779440188?logo=discord&style=flat&logoColor=white"/></a>
 </p>
 </div>
 
