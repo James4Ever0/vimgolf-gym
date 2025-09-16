@@ -29,6 +29,10 @@
 </p>
 </div>
 
+## Updates
+
+- 2025-09-16: We have public hosted a VimGolf mirror and AI competition info site at [vimgolf.netlify.app](https://vimgolf.netlify.app/). Check it out!
+
 ## Demo
 
 ### A simple script for solving the "vimgolf-test" challenge
